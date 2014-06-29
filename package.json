@@ -1,0 +1,16 @@
+{
+  "name": "tdltouchui",
+  "main": "views/index.html",
+  "node-main": "js/index.js",
+  "version": "0.0.1",
+  "single-instance": true,
+  "window": {
+    "title": "TDLTouchUI",
+    "width": 650,
+    "height": 650,
+    "min_width": 650,
+    "min_height": 650,
+    "toolbar": true
+  },
+  "chromium-args": "--child-clean-exit"
+}

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>TDL Touch UI</title>
+    <link href="../lib/kendoUI/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="../lib/kendoUI/styles/kendo.default.min.css" rel="stylesheet" />
+    <link href="../lib/kendoUI/styles/kendo.dataviz.min.css" rel="stylesheet" />
+    <link href="../lib/kendoUI/styles/kendo.dataviz.default.min.css" rel="stylesheet" />
+    <link href="../lib/kendoUI/styles/kendo.flat.mobile.min.css" rel="stylesheet">
+    <link href="../resources/styles/default.css" rel="stylesheet">
+    <script src="../lib/kendoUI/js/jquery.min.js"></script>
+    <script src="../lib/kendoUI/js/kendo.all.min.js"></script>
+
+</head>
+<body>
+<div data-role="view" id="welcomeView"  data-stretch="true" data-persist="true" data-transition="overlay:down">
+
+    <div id="welcomeContent">
+        <p><img src="../resources/images/logo2.png" width="100" height="125"/></p>
+        <div id="header">
+
+            <p>DTI-TDL</p>
+        </div>
+        <div id="content">
+                <a id="settingBtn" class="boxbutton" href="#serial_setting_form" data-role="button" data-transition="overlay:up">
+                    <img src="../resources/images/setting2.png" width="64" height="64"/>
+                    SETTINGS
+                </a>
+               &NonBreakingSpace;
+
+                <a id="connectBtn" class="boxbutton" href="javascript:void(0)">
+                    <img src="../resources/images/connect2.png" width="64" height="64"/>
+                    CONNECT
+                </a>
+
+
+
+
+
+
+
+
+        </div>
+        <div id="footer">
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<div data-role="view" id="serial_setting_form" data-title="Setting" data-transition="overlay:up" data-persist="true">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a id="back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>
+            <span data-role="view-title"></span>
+            <a class="nav-button" data-align="right" data-icon="organize" data-role="button" href="#welcomeView">Group</a>
+        </div>
+    </header>
+    <form action="./index.html">
+        <ul id="setting_list_form" data-role="listview" data-style="inset">
+            <li>
+                <label>Profile
+                    <select id="comm_profile">
+
+                    </select>
+                </label>
+            </li>
+            <li>
+                <label>Communication Port
+                    <select>
+                        <option value="COM1">COM1</option>
+                        <option value="COM2">COM2</option>
+                        <option value="COM3">COM3</option>
+                        <option value="COM4">COM4</option>
+                        <option value="COM5">COM5</option>
+                    </select>
+                </label>
+            </li>
+            <li>
+                <label>Bit Rate
+                    <select>
+                        <option value="115200">115200</option>
+                        <option value="57600">57600</option>
+                        <option value="38400">38400</option>
+                        <option value="19200">19200</option>
+                        <option value="9600">9600</option>
+                        <option value="4800">4800</option>
+                    </select>
+                </label>
+            </li>
+            <li>
+                <label>Data Bits
+                    <select>
+                        <option value="8">8</option>
+                        <option value="7">7</option>
+                        <option value="6">6</option>
+                        <option value="5">5</option>
+                    </select>
+                </label>
+            </li>
+            <li>
+                <label>Stop Bits
+                    <select>
+                        <option value="2">2</option>
+                        <option value="1.5">1.5</option>
+                        <option value="1" selected>1</option>
+                    </select>
+                </label>
+            </li>
+            <li>
+                <label>Parity Bits
+                    <select>
+                        <option value="8">Space</option>
+                        <option value="4">Mark</option>
+                        <option value="2">Odd</option>
+                        <option value="1">Even</option>
+                        <option value="0" selected>None</option>
+                    </select>
+                </label>
+            </li>
+            <li>
+                <label>Flow Control
+                    <select>
+                        <option value="2">Hardware</option>
+                        <option value="1">Xon/Xoff</option>
+                        <option value="0" selected>None</option>
+                    </select>
+                </label>
+            </li>
+        </ul>
+    </form>
+</div>
+<div class="k-loading-mask" style="width:100%;height:100%;background-color: rgba(255,255,255,0.8);">
+    <span class="k-loading-text">Loading...</span>
+    <div class="k-loading-image">
+        <div class="k-loading-color"></div>
+    </div>
+</div>
+<script>
+
+    var net = require('net');
+    var client = null;
+
+
+    function requestMsg(msg) {
+        client = net.connect(9889, 'localhost');
+        // Add a 'data' event handler for the client socket
+        // data is what the server sent to this socket
+        client.on('data', function(data) {
+
+            //console.log(data);
+            var retStr = bin2String(data);
+            var obj = JSON.parse(retStr);
+            console.log(obj);
+
+            client.destroy();
+
+            if(obj.msg_name=='response server status') {
+                revealApp();
+            }
+
+        });
+
+        // Add a 'close' event handler for the client socket
+        client.on('close', function() {
+            console.log('Connection closed');
+        });
+
+        client.on('error', function(err) {
+            console.log(err);
+            setTimeout(requestMsg,500,msg);
+        });
+
+        client.write(msg,'UTF-8');
+        client.end();
+    }
+
+    function bin2String(array) {
+
+        var result = "";
+        var foundJSONstr = false;
+        for (var i = 0; i < array.length; i++) {
+            if(array[i]==123&&!foundJSONstr) {
+                foundJSONstr = true;
+            }
+            if(foundJSONstr) {
+                result += String.fromCharCode(array[i]);
+            }
+
+        }
+        console.log(result);
+        return result;
+    }
+    function formatControlMessage(cmsg,params) {
+
+        if(cmsg=="request server status") {
+            return JSON.stringify({
+                msg_name: 'request server status',
+                msg_params: null
+            });
+        }
+
+    }
+
+
+    function revealApp() {
+        $('div.k-loading-mask').remove();
+    }
+
+
+
+    $(document).ready(function(){
+        var reqStatus =formatControlMessage('request server status', null);
+        setTimeout(requestMsg,2000,reqStatus);
+        //console.log(process.mainModule.exports.dirname);
+        var app = new kendo.mobile.Application(document.body);
+    });
+
+</script>
+</body>
+</html>
