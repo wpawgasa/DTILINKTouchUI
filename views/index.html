@@ -71,7 +71,7 @@
             </li>
             <li>
                 <label>Communication Port
-                    <select>
+                    <select id="comm_port">
                         <option value="COM1">COM1</option>
                         <option value="COM2">COM2</option>
                         <option value="COM3">COM3</option>
@@ -82,7 +82,7 @@
             </li>
             <li>
                 <label>Bit Rate
-                    <select>
+                    <select id="bit_rates">
                         <option value="115200">115200</option>
                         <option value="57600">57600</option>
                         <option value="38400">38400</option>
@@ -134,6 +134,46 @@
         </ul>
     </form>
 </div>
+
+
+<div data-role="modalview" id="modalview-database-error" style="width: 220px;">
+    <div data-role="header">
+        <div data-role="navbar">
+            <span>Database error</span>
+        </div>
+    </div>
+
+    <div data-role="contentview" style="padding: 5px;">
+
+        <p id="db-error"></p>
+    </div>
+
+    <div data-role="footer" style="background: none; padding: 5px;">
+        <a data-click="closeModalViewDBErrAndRetry" id="modalview-db-retry-button" type="button" data-role="button">Retry</a>
+        <a data-click="closeModalViewDBErrAndExit" id="modalview-db-exit-button" type="button" data-role="button">Close</a>
+    </div>
+
+</div>
+
+<div data-role="modalview" id="modalview-connection-error" style="width: 220px;">
+    <div data-role="header">
+        <div data-role="navbar">
+            <span>Connection error</span>
+        </div>
+    </div>
+
+    <div data-role="contentview" style="padding: 5px;">
+        Can not connect to TDL Server
+
+    </div>
+
+    <div data-role="footer" style="background: none; padding: 5px;">
+        <a data-click="closeModalViewConnErrAndRetry" id="modalview-retry-button" type="button" data-role="button">Retry</a>
+        <a data-click="closeModalViewConnErrAndExit" id="modalview-exit-button" type="button" data-role="button">Exit</a>
+    </div>
+
+</div>
+
 <div class="k-loading-mask" style="width:100%;height:100%;background-color: rgba(255,255,255,0.8);">
     <span class="k-loading-text">Loading...</span>
     <div class="k-loading-image">
@@ -141,12 +181,14 @@
     </div>
 </div>
 <script>
-
+    var gui = require('nw.gui');
     var net = require('net');
     var client = null;
-
-
+    var reconnectAttempts = 0;
+    var maxReconnectAttempts = 3;
+    var reqMsg = "";
     function requestMsg(msg) {
+
         client = net.connect(9889, 'localhost');
         // Add a 'data' event handler for the client socket
         // data is what the server sent to this socket
@@ -158,9 +200,31 @@
             console.log(obj);
 
             client.destroy();
+            reconnectAttempts = 0;
 
             if(obj.msg_name=='response server status') {
-                revealApp();
+                var serverStatus = obj.serverStatus;
+                if(serverStatus.status_name=="isRunning"&&serverStatus.status_result=="OK") {
+                    reqMsg = formatControlMessage('get profiles', null);
+                    requestMsg(reqMsg);
+                    revealApp();
+                }
+
+            }
+
+            if(obj.msg_name=='list profiles' && (obj.msg_err==""||obj.msg_err==null)) {
+                //console.log(obj);
+                var conn_profiles = obj.conn_profiles;
+                $('#comm_profile').empty();
+                for(var i=0;i<conn_profiles.length;i++) {
+                    var conn_profile = conn_profiles[i];
+                    //console.log(conn_profile);
+                    $('#comm_profile').append('<option value="'+conn_profile.profileId+'">'+conn_profile.profileName+'</option>');
+                }
+
+            } else {
+                $('#db-error').text('Cannot list profiles from DB');
+                $('#modalview-db-error').kendoMobileModalView('open');
             }
 
         });
@@ -172,7 +236,13 @@
 
         client.on('error', function(err) {
             console.log(err);
-            setTimeout(requestMsg,500,msg);
+            if(reconnectAttempts<=maxReconnectAttempts) {
+                reconnectAttempts++;
+                setTimeout(requestMsg,500,msg);
+            } else if(err.code=='ECONNREFUSED') {
+                $('#modalview-connection-error').kendoMobileModalView('open');
+            }
+
         });
 
         client.write(msg,'UTF-8');
@@ -204,6 +274,13 @@
             });
         }
 
+        if(cmsg=="get profiles") {
+            return JSON.stringify({
+                msg_name: 'get profiles',
+                msg_params: params
+            });
+        }
+
     }
 
 
@@ -211,11 +288,30 @@
         $('div.k-loading-mask').remove();
     }
 
+    function closeModalViewConnErrAndRetry() {
+        $('#modalview-connection-error').kendoMobileModalView('close');
+        var reqStatus =formatControlMessage('request server status', null);
+        setTimeout(requestMsg,500,reqStatus);
+    }
 
+    function closeModalViewConnErrAndExit() {
+        $('#modalview-connection-error').kendoMobileModalView('close');
+        gui.App.quit();
+    }
+
+    function closeModalViewDBErrAndRetry() {
+        $('#modalview-db-error').kendoMobileModalView('close');
+        setTimeout(requestMsg,500,reqMsg);
+    }
+
+    function closeModalViewDBErrAndExit() {
+        $('#modalview-connection-error').kendoMobileModalView('close');
+        //gui.App.quit();
+    }
 
     $(document).ready(function(){
-        var reqStatus =formatControlMessage('request server status', null);
-        setTimeout(requestMsg,2000,reqStatus);
+        reqMsg =formatControlMessage('request server status', null);
+        setTimeout(requestMsg,2000,reqMsg);
         //console.log(process.mainModule.exports.dirname);
         var app = new kendo.mobile.Application(document.body);
     });
