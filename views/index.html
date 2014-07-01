@@ -139,18 +139,18 @@
 <div data-role="modalview" id="modalview-database-error" style="width: 220px;">
     <div data-role="header">
         <div data-role="navbar">
-            <span>Database error</span>
+            <span class="modal-header">Database error</span>
         </div>
     </div>
 
-    <div data-role="contentview" style="padding: 5px;">
+    <div class="modal-content" data-role="contentview" style="padding: 5px;">
 
         <p id="db-error"></p>
     </div>
 
     <div data-role="footer" style="background: none; padding: 5px;">
-        <a data-click="closeModalViewDBErrAndRetry" id="modalview-db-retry-button" type="button" data-role="button">Retry</a>
-        <a data-click="closeModalViewDBErrAndExit" id="modalview-db-exit-button" type="button" data-role="button">Close</a>
+        <a class="modal-button" data-click="closeModalViewDBErrAndRetry" id="modalview-db-retry-button" type="button" data-role="button">Retry</a>
+        <a class="modal-button" data-click="closeModalViewDBErrAndExit" id="modalview-db-exit-button" type="button" data-role="button">Close</a>
     </div>
 
 </div>
@@ -158,18 +158,18 @@
 <div data-role="modalview" id="modalview-connection-error" style="width: 220px;">
     <div data-role="header">
         <div data-role="navbar">
-            <span>Connection error</span>
+            <span class="modal-header">Connection error</span>
         </div>
     </div>
 
-    <div data-role="contentview" style="padding: 5px;">
+    <div class="modal-content" data-role="contentview" style="padding: 5px;">
         Can not connect to TDL Server
 
     </div>
 
     <div data-role="footer" style="background: none; padding: 5px;">
-        <a data-click="closeModalViewConnErrAndRetry" id="modalview-retry-button" type="button" data-role="button">Retry</a>
-        <a data-click="closeModalViewConnErrAndExit" id="modalview-exit-button" type="button" data-role="button">Exit</a>
+        <a class="modal-button" data-click="closeModalViewConnErrAndRetry" id="modalview-retry-button" type="button" data-role="button">Retry</a>
+        <a class="modal-button" data-click="closeModalViewConnErrAndExit" id="modalview-exit-button" type="button" data-role="button">Exit</a>
     </div>
 
 </div>
@@ -187,6 +187,7 @@
     var reconnectAttempts = 0;
     var maxReconnectAttempts = 3;
     var reqMsg = "";
+    var isFirstResponse = true;
     function requestMsg(msg) {
 
         client = net.connect(9889, 'localhost');
@@ -204,9 +205,11 @@
 
             if(obj.msg_name=='response server status') {
                 var serverStatus = obj.serverStatus;
-                if(serverStatus.status_name=="isRunning"&&serverStatus.status_result=="OK") {
+                if(serverStatus.status_name=="isRunning"&&serverStatus.status_result=="OK"&&isFirstResponse) {
+                    isFirstResponse = false;
                     reqMsg = formatControlMessage('get profiles', null);
                     requestMsg(reqMsg);
+                    initApp();
                     revealApp();
                 }
 
@@ -224,6 +227,20 @@
 
             } else {
                 $('#db-error').text('Cannot list profiles from DB');
+                $('#modalview-db-error').kendoMobileModalView('open');
+            }
+
+            if(obj.msg_name=='response profile' && (obj.msg_err==""||obj.msg_err==null)) {
+                console.log(obj);
+                var conn_profiles = obj.conn_profiles;
+
+                var conn_profile = conn_profiles[0];
+                    //console.log(conn_profile);
+                $('#comm_port').val(conn_profile.comm_port);
+                $('#bit_rates').val(conn_profile.bit_rates);
+
+            } else {
+                $('#db-error').text('Cannot get profile from DB');
                 $('#modalview-db-error').kendoMobileModalView('open');
             }
 
@@ -249,6 +266,17 @@
         client.end();
     }
 
+    function initApp() {
+        getProfile(1);
+        $('#comm_profile').change(function(){
+            console.log($('#comm_profile option:selected').val());
+        });
+    }
+
+    function getProfile(id) {
+        reqMsg = formatControlMessage('get profile', '{"profileId":'+id+'}');
+        setTimeout(requestMsg,500,reqMsg);
+    }
     function bin2String(array) {
 
         var result = "";
@@ -267,19 +295,12 @@
     }
     function formatControlMessage(cmsg,params) {
 
-        if(cmsg=="request server status") {
-            return JSON.stringify({
-                msg_name: 'request server status',
-                msg_params: null
-            });
-        }
 
-        if(cmsg=="get profiles") {
             return JSON.stringify({
-                msg_name: 'get profiles',
+                msg_name: cmsg,
                 msg_params: params
             });
-        }
+
 
     }
 
@@ -311,7 +332,7 @@
 
     $(document).ready(function(){
         reqMsg =formatControlMessage('request server status', null);
-        setTimeout(requestMsg,2000,reqMsg);
+        setTimeout(requestMsg,1000,reqMsg);
         //console.log(process.mainModule.exports.dirname);
         var app = new kendo.mobile.Application(document.body);
     });
