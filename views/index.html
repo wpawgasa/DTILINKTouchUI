@@ -94,7 +94,7 @@
             </li>
             <li>
                 <label>Data Bits
-                    <select>
+                    <select id="databits">
                         <option value="8">8</option>
                         <option value="7">7</option>
                         <option value="6">6</option>
@@ -104,7 +104,7 @@
             </li>
             <li>
                 <label>Stop Bits
-                    <select>
+                    <select id="stopbits">
                         <option value="2">2</option>
                         <option value="1.5">1.5</option>
                         <option value="1" selected>1</option>
@@ -113,21 +113,21 @@
             </li>
             <li>
                 <label>Parity Bits
-                    <select>
-                        <option value="8">Space</option>
-                        <option value="4">Mark</option>
-                        <option value="2">Odd</option>
-                        <option value="1">Even</option>
-                        <option value="0" selected>None</option>
+                    <select id="parity">
+                        <option value="Space">Space</option>
+                        <option value="Mark">Mark</option>
+                        <option value="Odd">Odd</option>
+                        <option value="Even">Even</option>
+                        <option value="None" selected>None</option>
                     </select>
                 </label>
             </li>
             <li>
                 <label>Flow Control
-                    <select>
-                        <option value="2">Hardware</option>
-                        <option value="1">Xon/Xoff</option>
-                        <option value="0" selected>None</option>
+                    <select id="flowcontrol">
+                        <option value="Hardware">Hardware</option>
+                        <option value="XonXoff">Xon/Xoff</option>
+                        <option value="None" selected>None</option>
                     </select>
                 </label>
             </li>
@@ -209,8 +209,7 @@
                     isFirstResponse = false;
                     reqMsg = formatControlMessage('get profiles', null);
                     requestMsg(reqMsg);
-                    initApp();
-                    revealApp();
+
                 }
 
             }
@@ -223,7 +222,10 @@
                     var conn_profile = conn_profiles[i];
                     //console.log(conn_profile);
                     $('#comm_profile').append('<option value="'+conn_profile.profileId+'">'+conn_profile.profileName+'</option>');
+
                 }
+                $('#comm_profile').append('<option value="0">New profile</option>');
+                initApp();
 
             } else {
                 $('#db-error').text('Cannot list profiles from DB');
@@ -238,7 +240,11 @@
                     //console.log(conn_profile);
                 $('#comm_port').val(conn_profile.comm_port);
                 $('#bit_rates').val(conn_profile.bit_rates);
-
+                $('#databits').val(conn_profile.data_bits);
+                $('#stop_bits').val(conn_profile.stop_bits);
+                $('#parity').val(conn_profile.parity);
+                $('#flowcontrol').val(conn_profile.flowcontrol);
+                revealApp();
             } else {
                 $('#db-error').text('Cannot get profile from DB');
                 $('#modalview-db-error').kendoMobileModalView('open');
@@ -270,7 +276,13 @@
         getProfile(1);
         $('#comm_profile').change(function(){
             console.log($('#comm_profile option:selected').val());
+            if($('#comm_profile option:selected').val()!=0) {
+                getProfile($('#comm_profile option:selected').val());
+            } else {
+                $('#comm_profile').replaceWith('<input type="text" name="new_comm_profile" id="new_comm_profile">');
+            }
         });
+
     }
 
     function getProfile(id) {
