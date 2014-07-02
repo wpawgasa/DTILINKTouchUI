@@ -52,12 +52,12 @@
 </div>
 
 
-<div data-role="view" id="serial_setting_form" data-title="Setting" data-transition="overlay:up" data-persist="true">
+<div data-role="view" id="serial_setting_form" data-title="Settings" data-transition="overlay:up" data-persist="true">
     <header data-role="header">
         <div data-role="navbar">
-            <a id="back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>
+            <a id="setting-back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>
             <span data-role="view-title"></span>
-            <a class="nav-button" data-align="right" data-icon="organize" data-role="button" href="#welcomeView">Group</a>
+            <a id="setting-save-button" class="nav-button" data-align="right" data-role="button">Save</a>
         </div>
     </header>
     <form action="./index.html">
@@ -168,8 +168,25 @@
     </div>
 
     <div data-role="footer" style="background: none; padding: 5px;">
-        <a class="modal-button" data-click="closeModalViewConnErrAndRetry" id="modalview-retry-button" type="button" data-role="button">Retry</a>
-        <a class="modal-button" data-click="closeModalViewConnErrAndExit" id="modalview-exit-button" type="button" data-role="button">Exit</a>
+        <a class="modal-button" data-click="closeModalViewConnErrAndRetry" id="modalview-conn-retry-button" type="button" data-role="button">Retry</a>
+        <a class="modal-button" data-click="closeModalViewConnErrAndExit" id="modalview-conn-exit-button" type="button" data-role="button">Exit</a>
+    </div>
+
+</div>
+<div data-role="modalview" id="modalview-form-error" style="width: 220px;">
+    <div data-role="header">
+        <div data-role="navbar">
+            <span class="modal-header">Form error</span>
+        </div>
+    </div>
+
+    <div class="modal-content" data-role="contentview" style="padding: 5px;">
+        <p id="form-error"></p>
+
+    </div>
+
+    <div data-role="footer" style="background: none; padding: 5px;">
+        <a class="modal-button" data-click="closeModalViewFormErr" id="modalview-form-exit-button" type="button" data-role="button">OK</a>
     </div>
 
 </div>
@@ -205,8 +222,8 @@
 
             if(obj.msg_name=='response server status') {
                 var serverStatus = obj.serverStatus;
-                if(serverStatus.status_name=="isRunning"&&serverStatus.status_result=="OK"&&isFirstResponse) {
-                    isFirstResponse = false;
+                if(serverStatus.status_name=="isRunning"&&serverStatus.status_result=="OK") {
+
                     reqMsg = formatControlMessage('get profiles', null);
                     requestMsg(reqMsg);
 
@@ -217,6 +234,9 @@
             if(obj.msg_name=='list profiles' && (obj.msg_err==""||obj.msg_err==null)) {
                 //console.log(obj);
                 var conn_profiles = obj.conn_profiles;
+                if($('#new_comm_profile').val()!=undefined) {
+                    $('#new_comm_profile').replaceWith('<select id="comm_profile"></select>');
+                }
                 $('#comm_profile').empty();
                 for(var i=0;i<conn_profiles.length;i++) {
                     var conn_profile = conn_profiles[i];
@@ -225,7 +245,11 @@
 
                 }
                 $('#comm_profile').append('<option value="0">New profile</option>');
-                initApp();
+                if(isFirstResponse) {
+                    initApp();
+                    isFirstResponse = false;
+                }
+
 
             } else {
                 $('#db-error').text('Cannot list profiles from DB');
@@ -250,6 +274,13 @@
                 $('#modalview-db-error').kendoMobileModalView('open');
             }
 
+            if(obj.msg_name=='response update profile' && (obj.msg_err==""||obj.msg_err==null)) {
+                reqMsg = formatControlMessage('get profiles', null);
+                requestMsg(reqMsg);
+            } else {
+                $('#db-error').text('Cannot update profile : '+obj.msg_err);
+                $('#modalview-db-error').kendoMobileModalView('open');
+            }
         });
 
         // Add a 'close' event handler for the client socket
@@ -275,11 +306,37 @@
     function initApp() {
         getProfile(1);
         $('#comm_profile').change(function(){
-            console.log($('#comm_profile option:selected').val());
+            //console.log($('#comm_profile option:selected').val());
             if($('#comm_profile option:selected').val()!=0) {
                 getProfile($('#comm_profile option:selected').val());
             } else {
                 $('#comm_profile').replaceWith('<input type="text" name="new_comm_profile" id="new_comm_profile">');
+            }
+        });
+
+        $('#setting-save-button').click(function(){
+            //console.log('--- '+$('#new_comm_profile').val());
+            if($('#new_comm_profile').val()!=undefined) {
+                if($('#new_comm_profile').val()=="") {
+                    $('#form-error').text("Profile name cannot be blank");
+                    $('#modalview-form-error').kendoMobileModalView('open');
+                } else {
+                    var params = '{"profileName":"'+$('#new_comm_profile').val()+'",'
+                            +'"comm_port":"'+$('#comm_port').val()+'",'
+                            +'"bit_rates":'+$('#bit_rates').val()+','
+                            +'"data_bits":'+$('#databits').val()+','
+                            +'"stop_bits":"'+$('#stopbits').val()+'",'
+                            +'"parity":"'+$('#parity').val()+'",'
+                            +'"flowcontrol":"'+$('#flowcontrol').val()+'"'
+                            +'}';
+                    reqMsg = formatControlMessage('add new profile', params);
+                    setTimeout(requestMsg,100,reqMsg);
+                }
+
+            }
+            if($('#comm_profile').val()!=undefined&&$('#comm_profile').val()!=0) {
+                reqMsg = formatControlMessage('update profile', '{"profileId":'+id+'}');
+                setTimeout(requestMsg,100,reqMsg);
             }
         });
 
@@ -339,6 +396,11 @@
 
     function closeModalViewDBErrAndExit() {
         $('#modalview-connection-error').kendoMobileModalView('close');
+        //gui.App.quit();
+    }
+
+    function closeModalViewFormErr() {
+        $('#modalview-form-error').kendoMobileModalView('close');
         //gui.App.quit();
     }
 
