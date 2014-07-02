@@ -311,6 +311,12 @@
                 getProfile($('#comm_profile option:selected').val());
             } else {
                 $('#comm_profile').replaceWith('<input type="text" name="new_comm_profile" id="new_comm_profile">');
+                $('#setting-back-button').text('Cancel');
+                $('#setting-back-button').click(function(){
+                    $('#setting-back-button').text('Back');
+                    
+                    $('#new_comm_profile').replaceWith('<select id="comm_profile"></select>');
+                });
             }
         });
 
@@ -333,9 +339,16 @@
                     setTimeout(requestMsg,100,reqMsg);
                 }
 
-            }
-            if($('#comm_profile').val()!=undefined&&$('#comm_profile').val()!=0) {
-                reqMsg = formatControlMessage('update profile', '{"profileId":'+id+'}');
+            } else if($('#comm_profile').val()!=undefined&&$('#comm_profile').val()!=0) {
+                var params = '{"profileId":'+$('#comm_profile').val()+','
+                        +'"comm_port":"'+$('#comm_port').val()+'",'
+                        +'"bit_rates":'+$('#bit_rates').val()+','
+                        +'"data_bits":'+$('#databits').val()+','
+                        +'"stop_bits":"'+$('#stopbits').val()+'",'
+                        +'"parity":"'+$('#parity').val()+'",'
+                        +'"flowcontrol":"'+$('#flowcontrol').val()+'"'
+                        +'}';
+                reqMsg = formatControlMessage('update profile', params);
                 setTimeout(requestMsg,100,reqMsg);
             }
         });
