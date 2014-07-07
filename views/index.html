@@ -23,16 +23,16 @@
             <p>DTI-TDL</p>
         </div>
         <div id="content">
-                <a id="settingBtn" class="boxbutton" href="#serial_setting_form" data-role="button" data-transition="overlay:up">
-                    <img src="../resources/images/setting2.png" width="64" height="64"/>
-                    SETTINGS
-                </a>
-               &NonBreakingSpace;
+            <a id="settingBtn" class="boxbutton" href="#serial_setting_form" data-role="button" data-transition="overlay:up">
+                <img src="../resources/images/setting2.png" width="64" height="64"/>
+                SETTINGS
+            </a>
+            &NonBreakingSpace;
 
-                <a id="connectBtn" class="boxbutton" href="javascript:void()">
-                    <img src="../resources/images/connect2.png" width="64" height="64"/>
-                    CONNECT
-                </a>
+            <a id="connectBtn" class="boxbutton" href="#">
+                <img src="../resources/images/connect2.png" width="64" height="64"/>
+                CONNECT
+            </a>
 
 
 
@@ -131,7 +131,7 @@
                     </select>
                 </label>
             </li>
-            
+
         </ul>
         <div data-role="footer" style="background: none; padding: 5px; text-align: center;">
             <a class="delete-button" id="setting-delete-button" type="button" data-role="button">Delete</a>
@@ -198,7 +198,7 @@
 <div data-role="view" id="app-main-tabstrip" data-title="DTI-TDL" data-layout="mobile-tabstrip">
     <header data-role="header">
         <div data-role="navbar">
-            <a id="left-drawer-button" class="nav-button" data-align="left" href="#" data-rel="drawer" data-role="button"><span class="k-icon k-justifyFull"></span></span> </a>
+            <a id="left-drawer-button" class="nav-button" data-align="left" href="#" data-rel="drawer" data-role="button"><span class="k-icon my-drawer"></span></a>
             <span data-role="view-title"></span>
             <a id="right-drawer-button" class="nav-button" data-align="right" href="#" data-rel="drawer" data-role="button"></a>
         </div>
@@ -211,163 +211,132 @@
     </div>
 </div>
 <script>
-    var gui = require('nw.gui');
-    var net = require('net');
-    var app;
-    var client = null;
-    var reconnectAttempts = 0;
-    var maxReconnectAttempts = 3;
-    var reqMsg = "";
-    var isFirstResponse = true;
-    function requestMsg(msg) {
+var gui = require('nw.gui');
+var net = require('net');
+var app;
+var client = null;
+var reconnectAttempts = 0;
+var maxReconnectAttempts = 3;
+var reqMsg = "";
+var isFirstResponse = true;
+function requestMsg(msg) {
 
-        client = net.connect(9889, 'localhost');
-        // Add a 'data' event handler for the client socket
-        // data is what the server sent to this socket
-        client.on('data', function(data) {
+    client = net.connect(9889, 'localhost');
+    // Add a 'data' event handler for the client socket
+    // data is what the server sent to this socket
+    client.on('data', function(data) {
 
-            //console.log(data);
-            var retStr = bin2String(data);
-            var obj = JSON.parse(retStr);
-            console.log(obj);
+        //console.log(data);
+        var retStr = bin2String(data);
+        var obj = JSON.parse(retStr);
+        console.log(obj);
 
-            client.destroy();
-            reconnectAttempts = 0;
+        client.destroy();
+        reconnectAttempts = 0;
 
-            if(obj.msg_name=='response server status') {
-                var serverStatus = obj.serverStatus;
-                if(serverStatus.status_name=="isRunning"&&serverStatus.status_result=="OK") {
+        if(obj.msg_name=='response server status') {
+            var serverStatus = obj.serverStatus;
+            if(serverStatus.status_name=="isRunning"&&serverStatus.status_result=="OK") {
 
-                    reqMsg = formatControlMessage('get profiles', null);
-                    requestMsg(reqMsg);
-
-                }
-
-            }
-
-            if(obj.msg_name=='list profiles' && (obj.msg_err==""||obj.msg_err==null)) {
-                //console.log(obj);
-                var conn_profiles = obj.conn_profiles;
-                if($('#new_comm_profile').val()!=undefined) {
-                    $('#new_comm_profile').replaceWith('<select id="comm_profile"></select>');
-                }
-                $('#comm_profile').empty();
-                for(var i=0;i<conn_profiles.length;i++) {
-                    var conn_profile = conn_profiles[i];
-                    //console.log(conn_profile);
-                    $('#comm_profile').append('<option value="'+conn_profile.profileId+'">'+conn_profile.profileName+'</option>');
-
-                }
-                $('#comm_profile').append('<option value="0">New profile</option>');
-                if(isFirstResponse) {
-                    initApp();
-                    isFirstResponse = false;
-                }
-                getProfile(1);
-
-
-            } else {
-                $('#db-error').text('Cannot list profiles from DB');
-                $('#modalview-db-error').kendoMobileModalView('open');
-            }
-
-            if(obj.msg_name=='response profile' && (obj.msg_err==""||obj.msg_err==null)) {
-                console.log(obj);
-                var conn_profiles = obj.conn_profiles;
-
-                var conn_profile = conn_profiles[0];
-                    //console.log(conn_profile);
-                $('#comm_port').val(conn_profile.comm_port);
-                $('#bit_rates').val(conn_profile.bit_rates);
-                $('#databits').val(conn_profile.data_bits);
-                $('#stop_bits').val(conn_profile.stop_bits);
-                $('#parity').val(conn_profile.parity);
-                $('#flowcontrol').val(conn_profile.flowcontrol);
-                revealApp();
-            } else {
-                $('#db-error').text('Cannot get profile from DB');
-                $('#modalview-db-error').kendoMobileModalView('open');
-            }
-
-            if(obj.msg_name=='response update profile' && (obj.msg_err==""||obj.msg_err==null)) {
                 reqMsg = formatControlMessage('get profiles', null);
                 requestMsg(reqMsg);
-            } else {
-                $('#db-error').text('Cannot update profile : '+obj.msg_err);
-                $('#modalview-db-error').kendoMobileModalView('open');
+
             }
 
-            if(obj.msg_name=='response connect' && (obj.msg_err==""||obj.msg_err==null)) {
-                app.navigate("app-main-tabstrip","slide:right");
-            } else {
-                $('#db-error').text('Cannot update profile : '+obj.msg_err);
-                $('#modalview-db-error').kendoMobileModalView('open');
-            }
-        });
+        }
 
-        // Add a 'close' event handler for the client socket
-        client.on('close', function() {
-            console.log('Connection closed');
-        });
-
-        client.on('error', function(err) {
-            console.log(err);
-            if(reconnectAttempts<=maxReconnectAttempts) {
-                reconnectAttempts++;
-                setTimeout(requestMsg,500,msg);
-            } else if(err.code=='ECONNREFUSED') {
-                $('#modalview-connection-error').kendoMobileModalView('open');
-            }
-
-        });
-
-        client.write(msg,'UTF-8');
-        client.end();
-    }
-
-    function initApp() {
-<<<<<<< HEAD
-        getProfile(1);
-        $('#comm_profile').change(function(){
-            //console.log($('#comm_profile option:selected').val());
-            if($('#comm_profile option:selected').val()!=0) {
-                getProfile($('#comm_profile option:selected').val());
-            } else {
-                $('#comm_profile').replaceWith('<input type="text" name="new_comm_profile" id="new_comm_profile">');
-                $('#setting-back-button').text('Cancel');
-                $('#setting-back-button').click(function(){
-                    $('#setting-back-button').text('Back');
-
-                    $('#new_comm_profile').replaceWith('<select id="comm_profile"></select>');
-                });
-            }
-        });
-=======
-        //getProfile(1);
-        //$('#comm_profile').change(changeProfile());
->>>>>>> origin/master
-
-        $('#setting-save-button').click(function(){
-            //console.log('--- '+$('#new_comm_profile').val());
+        if(obj.msg_name=='list profiles' && (obj.msg_err==""||obj.msg_err==null)) {
+            //console.log(obj);
+            var conn_profiles = obj.conn_profiles;
             if($('#new_comm_profile').val()!=undefined) {
-                if($('#new_comm_profile').val()=="") {
-                    $('#form-error').text("Profile name cannot be blank");
-                    $('#modalview-form-error').kendoMobileModalView('open');
-                } else {
-                    var params = '{"profileName":"'+$('#new_comm_profile').val()+'",'
-                            +'"comm_port":"'+$('#comm_port').val()+'",'
-                            +'"bit_rates":'+$('#bit_rates').val()+','
-                            +'"data_bits":'+$('#databits').val()+','
-                            +'"stop_bits":"'+$('#stopbits').val()+'",'
-                            +'"parity":"'+$('#parity').val()+'",'
-                            +'"flowcontrol":"'+$('#flowcontrol').val()+'"'
-                            +'}';
-                    reqMsg = formatControlMessage('add new profile', params);
-                    setTimeout(requestMsg,100,reqMsg);
-                }
+                $('#new_comm_profile').replaceWith('<select id="comm_profile"></select>');
+            }
+            $('#comm_profile').empty();
+            for(var i=0;i<conn_profiles.length;i++) {
+                var conn_profile = conn_profiles[i];
+                //console.log(conn_profile);
+                $('#comm_profile').append('<option value="'+conn_profile.profileId+'">'+conn_profile.profileName+'</option>');
 
-            } else if($('#comm_profile').val()!=undefined&&$('#comm_profile').val()!=0) {
-                var params = '{"profileId":'+$('#comm_profile').val()+','
+            }
+            $('#comm_profile').append('<option value="0">New profile</option>');
+            if(isFirstResponse) {
+                initApp();
+                isFirstResponse = false;
+            }
+            getProfile(1);
+
+
+        } else {
+            $('#db-error').text('Cannot list profiles from DB');
+            $('#modalview-db-error').kendoMobileModalView('open');
+        }
+
+        if(obj.msg_name=='response profile' && (obj.msg_err==""||obj.msg_err==null)) {
+            console.log(obj);
+            var conn_profiles = obj.conn_profiles;
+
+            var conn_profile = conn_profiles[0];
+            //console.log(conn_profile);
+            $('#comm_port').val(conn_profile.comm_port);
+            $('#bit_rates').val(conn_profile.bit_rates);
+            $('#databits').val(conn_profile.data_bits);
+            $('#stop_bits').val(conn_profile.stop_bits);
+            $('#parity').val(conn_profile.parity);
+            $('#flowcontrol').val(conn_profile.flowcontrol);
+            revealApp();
+        } else {
+            $('#db-error').text('Cannot get profile from DB');
+            $('#modalview-db-error').kendoMobileModalView('open');
+        }
+
+        if(obj.msg_name=='response update profile' && (obj.msg_err==""||obj.msg_err==null)) {
+            reqMsg = formatControlMessage('get profiles', null);
+            requestMsg(reqMsg);
+        } else {
+            $('#db-error').text('Cannot update profile : '+obj.msg_err);
+            $('#modalview-db-error').kendoMobileModalView('open');
+        }
+
+        if(obj.msg_name=='response connect' && (obj.msg_err==""||obj.msg_err==null)) {
+            app.navigate("app-main-tabstrip","slide:right");
+        } else {
+            $('#db-error').text('Cannot update profile : '+obj.msg_err);
+            $('#modalview-db-error').kendoMobileModalView('open');
+        }
+    });
+
+    // Add a 'close' event handler for the client socket
+    client.on('close', function() {
+        console.log('Connection closed');
+    });
+
+    client.on('error', function(err) {
+        console.log(err);
+        if(reconnectAttempts<=maxReconnectAttempts) {
+            reconnectAttempts++;
+            setTimeout(requestMsg,500,msg);
+        } else if(err.code=='ECONNREFUSED') {
+            $('#modalview-connection-error').kendoMobileModalView('open');
+        }
+
+    });
+
+    client.write(msg,'UTF-8');
+    client.end();
+}
+
+function initApp() {
+    //getProfile(1);
+    //$('#comm_profile').change(changeProfile());
+
+    $('#setting-save-button').click(function(){
+        //console.log('--- '+$('#new_comm_profile').val());
+        if($('#new_comm_profile').val()!=undefined) {
+            if($('#new_comm_profile').val()=="") {
+                $('#form-error').text("Profile name cannot be blank");
+                $('#modalview-form-error').kendoMobileModalView('open');
+            } else {
+                var params = '{"profileName":"'+$('#new_comm_profile').val()+'",'
                         +'"comm_port":"'+$('#comm_port').val()+'",'
                         +'"bit_rates":'+$('#bit_rates').val()+','
                         +'"data_bits":'+$('#databits').val()+','
@@ -375,120 +344,133 @@
                         +'"parity":"'+$('#parity').val()+'",'
                         +'"flowcontrol":"'+$('#flowcontrol').val()+'"'
                         +'}';
-                reqMsg = formatControlMessage('update profile', params);
+                reqMsg = formatControlMessage('add new profile', params);
                 setTimeout(requestMsg,100,reqMsg);
             }
-        });
 
-        $('#connectBtn').click(function(){
-            connectSerial();
-        });
-
-    }
-
-    function changeProfile() {
-        
-            //console.log($('#comm_profile option:selected').val());
-            if($('#comm_profile option:selected').val()!=0) {
-                getProfile($('#comm_profile option:selected').val());
-            } else {
-                $('#comm_profile').replaceWith('<input type="text" name="new_comm_profile" id="new_comm_profile">');
-                $('#setting-back-button').replaceWith('<a id="setting-cancel-button" class="nav-button" data-align="left" data-role="button">Cancel</a>');
-                $('#setting-cancel-button').kendoMobileButton();
-                $('#setting-cancel-button').click(function(){
-                    $('#setting-cancel-button').replaceWith('<a id="setting-back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>');
-                    $('#setting-back-button').kendoMobileButton();
-                    $('#new_comm_profile').replaceWith('<select id="comm_profile" onChange="changeProfile()"></select>');
-                    
-                    getProfiles();
-                    
-                });
-            }
-        
-    }
-    function getProfile(id) {
-        reqMsg = formatControlMessage('get profile', '{"profileId":'+id+'}');
-        setTimeout(requestMsg,500,reqMsg);
-    }
-    function getProfiles() {
-        reqMsg = formatControlMessage('get profiles', null);
-        requestMsg(reqMsg);
-    }
-    function bin2String(array) {
-
-        var result = "";
-        var foundJSONstr = false;
-        for (var i = 0; i < array.length; i++) {
-            if(array[i]==123&&!foundJSONstr) {
-                foundJSONstr = true;
-            }
-            if(foundJSONstr) {
-                result += String.fromCharCode(array[i]);
-            }
-
+        } else if($('#comm_profile').val()!=undefined&&$('#comm_profile').val()!=0) {
+            var params = '{"profileId":'+$('#comm_profile').val()+','
+                    +'"comm_port":"'+$('#comm_port').val()+'",'
+                    +'"bit_rates":'+$('#bit_rates').val()+','
+                    +'"data_bits":'+$('#databits').val()+','
+                    +'"stop_bits":"'+$('#stopbits').val()+'",'
+                    +'"parity":"'+$('#parity').val()+'",'
+                    +'"flowcontrol":"'+$('#flowcontrol').val()+'"'
+                    +'}';
+            reqMsg = formatControlMessage('update profile', params);
+            setTimeout(requestMsg,100,reqMsg);
         }
-        console.log(result);
-        return result;
-    }
-    function formatControlMessage(cmsg,params) {
-
-
-            return JSON.stringify({
-                msg_name: cmsg,
-                msg_params: params
-            });
-
-
-    }
-
-
-    function revealApp() {
-        $('div.k-loading-mask').remove();
-    }
-
-    function closeModalViewConnErrAndRetry() {
-        $('#modalview-connection-error').kendoMobileModalView('close');
-        var reqStatus =formatControlMessage('request server status', null);
-        setTimeout(requestMsg,500,reqStatus);
-    }
-
-    function closeModalViewConnErrAndExit() {
-        $('#modalview-connection-error').kendoMobileModalView('close');
-        gui.App.quit();
-    }
-
-    function closeModalViewDBErrAndRetry() {
-        $('#modalview-db-error').kendoMobileModalView('close');
-        setTimeout(requestMsg,500,reqMsg);
-    }
-
-    function closeModalViewDBErrAndExit() {
-        $('#modalview-connection-error').kendoMobileModalView('close');
-        //gui.App.quit();
-    }
-
-    function closeModalViewFormErr() {
-        $('#modalview-form-error').kendoMobileModalView('close');
-        //gui.App.quit();
-    }
-
-    function connectSerial() {
-        var params = '{"comm_port":"'+$('#comm_port').val()
-                +'","bit_rates":'+$('#bit_rates').val()
-                +',"data_bits":'+$('#databits').val()
-                +',"stop_bits":"'+$('#stopbits').val()
-                +'","parity":"'+$('#parity').val()
-                +'","flowcontrol":"'+$('#flowcontrol').val()
-                +'"}';
-        reqMsg =formatControlMessage('connect', params);
-        setTimeout(requestMsg,1000,reqMsg);
-    }
-    $(document).ready(function(){
-        reqMsg =formatControlMessage('request server status', null);
-        setTimeout(requestMsg,1000,reqMsg);
-        //console.log(process.mainModule.exports.dirname);
-        app = new kendo.mobile.Application(document.body);
     });
+
+    $('#connectBtn').click(function(){
+        connectSerial();
+    });
+
+}
+
+function changeProfile() {
+
+    //console.log($('#comm_profile option:selected').val());
+    if($('#comm_profile option:selected').val()!=0) {
+        getProfile($('#comm_profile option:selected').val());
+    } else {
+        $('#comm_profile').replaceWith('<input type="text" name="new_comm_profile" id="new_comm_profile">');
+        $('#setting-back-button').replaceWith('<a id="setting-cancel-button" class="nav-button" data-align="left" data-role="button">Cancel</a>');
+        $('#setting-cancel-button').kendoMobileButton();
+        $('#setting-cancel-button').click(function(){
+            $('#setting-cancel-button').replaceWith('<a id="setting-back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>');
+            $('#setting-back-button').kendoMobileButton();
+            $('#new_comm_profile').replaceWith('<select id="comm_profile" onChange="changeProfile()"></select>');
+
+            getProfiles();
+
+        });
+    }
+
+}
+function getProfile(id) {
+    reqMsg = formatControlMessage('get profile', '{"profileId":'+id+'}');
+    setTimeout(requestMsg,500,reqMsg);
+}
+function getProfiles() {
+    reqMsg = formatControlMessage('get profiles', null);
+    requestMsg(reqMsg);
+}
+function bin2String(array) {
+
+    var result = "";
+    var foundJSONstr = false;
+    for (var i = 0; i < array.length; i++) {
+        if(array[i]==123&&!foundJSONstr) {
+            foundJSONstr = true;
+        }
+        if(foundJSONstr) {
+            result += String.fromCharCode(array[i]);
+        }
+
+    }
+    console.log(result);
+    return result;
+}
+function formatControlMessage(cmsg,params) {
+
+
+    return JSON.stringify({
+        msg_name: cmsg,
+        msg_params: params
+    });
+
+
+}
+
+
+function revealApp() {
+    $('div.k-loading-mask').remove();
+}
+
+function closeModalViewConnErrAndRetry() {
+    $('#modalview-connection-error').kendoMobileModalView('close');
+    var reqStatus =formatControlMessage('request server status', null);
+    setTimeout(requestMsg,500,reqStatus);
+}
+
+function closeModalViewConnErrAndExit() {
+    $('#modalview-connection-error').kendoMobileModalView('close');
+    gui.App.quit();
+}
+
+function closeModalViewDBErrAndRetry() {
+    $('#modalview-db-error').kendoMobileModalView('close');
+    setTimeout(requestMsg,500,reqMsg);
+}
+
+function closeModalViewDBErrAndExit() {
+    $('#modalview-connection-error').kendoMobileModalView('close');
+    //gui.App.quit();
+}
+
+function closeModalViewFormErr() {
+    $('#modalview-form-error').kendoMobileModalView('close');
+    //gui.App.quit();
+}
+
+function connectSerial() {
+    var params = '{"comm_port":"'+$('#comm_port').val()
+            +'","bit_rates":'+$('#bit_rates').val()
+            +',"data_bits":'+$('#databits').val()
+            +',"stop_bits":"'+$('#stopbits').val()
+            +'","parity":"'+$('#parity').val()
+            +'","flowcontrol":"'+$('#flowcontrol').val()
+            +'"}';
+    reqMsg =formatControlMessage('connect', params);
+    setTimeout(requestMsg,1000,reqMsg);
+}
+$(document).ready(function(){
+    reqMsg =formatControlMessage('request server status', null);
+    setTimeout(requestMsg,1000,reqMsg);
+    //console.log(process.mainModule.exports.dirname);
+    app = new kendo.mobile.Application(document.body);
+});
 
 </script>
 </body>
