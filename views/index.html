@@ -29,7 +29,7 @@
                 </a>
                &NonBreakingSpace;
 
-                <a id="connectBtn" class="boxbutton" href="javascript:void(0)">
+                <a id="connectBtn" class="boxbutton" href="javascript:void()">
                     <img src="../resources/images/connect2.png" width="64" height="64"/>
                     CONNECT
                 </a>
@@ -64,7 +64,7 @@
         <ul id="setting_list_form" data-role="listview" data-style="inset">
             <li>
                 <label>Profile
-                    <select id="comm_profile">
+                    <select id="comm_profile" onChange="changeProfile()">
 
                     </select>
                 </label>
@@ -131,7 +131,11 @@
                     </select>
                 </label>
             </li>
+            
         </ul>
+        <div data-role="footer" style="background: none; padding: 5px; text-align: center;">
+            <a class="delete-button" id="setting-delete-button" type="button" data-role="button">Delete</a>
+        </div>
     </form>
 </div>
 
@@ -191,6 +195,15 @@
 
 </div>
 
+<div data-role="view" id="app-main-tabstrip" data-title="DTI-TDL" data-layout="mobile-tabstrip">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a id="left-drawer-button" class="nav-button" data-align="left" href="#" data-rel="drawer" data-role="button"><span class="k-icon k-justifyFull"></span></span> </a>
+            <span data-role="view-title"></span>
+            <a id="right-drawer-button" class="nav-button" data-align="right" href="#" data-rel="drawer" data-role="button"></a>
+        </div>
+    </header>
+</div>
 <div class="k-loading-mask" style="width:100%;height:100%;background-color: rgba(255,255,255,0.8);">
     <span class="k-loading-text">Loading...</span>
     <div class="k-loading-image">
@@ -200,6 +213,7 @@
 <script>
     var gui = require('nw.gui');
     var net = require('net');
+    var app;
     var client = null;
     var reconnectAttempts = 0;
     var maxReconnectAttempts = 3;
@@ -249,6 +263,7 @@
                     initApp();
                     isFirstResponse = false;
                 }
+                getProfile(1);
 
 
             } else {
@@ -281,6 +296,13 @@
                 $('#db-error').text('Cannot update profile : '+obj.msg_err);
                 $('#modalview-db-error').kendoMobileModalView('open');
             }
+
+            if(obj.msg_name=='response connect' && (obj.msg_err==""||obj.msg_err==null)) {
+                app.navigate("app-main-tabstrip","slide:right");
+            } else {
+                $('#db-error').text('Cannot update profile : '+obj.msg_err);
+                $('#modalview-db-error').kendoMobileModalView('open');
+            }
         });
 
         // Add a 'close' event handler for the client socket
@@ -304,6 +326,7 @@
     }
 
     function initApp() {
+<<<<<<< HEAD
         getProfile(1);
         $('#comm_profile').change(function(){
             //console.log($('#comm_profile option:selected').val());
@@ -319,6 +342,10 @@
                 });
             }
         });
+=======
+        //getProfile(1);
+        //$('#comm_profile').change(changeProfile());
+>>>>>>> origin/master
 
         $('#setting-save-button').click(function(){
             //console.log('--- '+$('#new_comm_profile').val());
@@ -353,11 +380,39 @@
             }
         });
 
+        $('#connectBtn').click(function(){
+            connectSerial();
+        });
+
     }
 
+    function changeProfile() {
+        
+            //console.log($('#comm_profile option:selected').val());
+            if($('#comm_profile option:selected').val()!=0) {
+                getProfile($('#comm_profile option:selected').val());
+            } else {
+                $('#comm_profile').replaceWith('<input type="text" name="new_comm_profile" id="new_comm_profile">');
+                $('#setting-back-button').replaceWith('<a id="setting-cancel-button" class="nav-button" data-align="left" data-role="button">Cancel</a>');
+                $('#setting-cancel-button').kendoMobileButton();
+                $('#setting-cancel-button').click(function(){
+                    $('#setting-cancel-button').replaceWith('<a id="setting-back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>');
+                    $('#setting-back-button').kendoMobileButton();
+                    $('#new_comm_profile').replaceWith('<select id="comm_profile" onChange="changeProfile()"></select>');
+                    
+                    getProfiles();
+                    
+                });
+            }
+        
+    }
     function getProfile(id) {
         reqMsg = formatControlMessage('get profile', '{"profileId":'+id+'}');
         setTimeout(requestMsg,500,reqMsg);
+    }
+    function getProfiles() {
+        reqMsg = formatControlMessage('get profiles', null);
+        requestMsg(reqMsg);
     }
     function bin2String(array) {
 
@@ -417,11 +472,22 @@
         //gui.App.quit();
     }
 
+    function connectSerial() {
+        var params = '{"comm_port":"'+$('#comm_port').val()
+                +'","bit_rates":'+$('#bit_rates').val()
+                +',"data_bits":'+$('#databits').val()
+                +',"stop_bits":"'+$('#stopbits').val()
+                +'","parity":"'+$('#parity').val()
+                +'","flowcontrol":"'+$('#flowcontrol').val()
+                +'"}';
+        reqMsg =formatControlMessage('connect', params);
+        setTimeout(requestMsg,1000,reqMsg);
+    }
     $(document).ready(function(){
         reqMsg =formatControlMessage('request server status', null);
         setTimeout(requestMsg,1000,reqMsg);
         //console.log(process.mainModule.exports.dirname);
-        var app = new kendo.mobile.Application(document.body);
+        app = new kendo.mobile.Application(document.body);
     });
 
 </script>
