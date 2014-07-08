@@ -107,7 +107,39 @@ h1 {
     width: 24px;
     height: 24px;
 }
+.my-info {
+    background-image: url("../images/sprite_2x.png");
+    background-position: -322px -482px;
 
+    width: 28px;
+    height: 28px;
+}
+
+.km-icon {
+    font-size: 27px !important;
+}
+.km-mydrawer:after,
+.km-mydrawer:before {
+    content: '\e090';
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+
+}
+
+.km-myinfo:after,
+.km-myinfo:before {
+    content: '\e313';
+
+
+}
+
+#left-drawer {
+    background-image: url('../images/patterns/greywashwall/grey_wash_wall/grey_wash_wall.png');
+    background-repeat: repeat;
+}
 /*
 #content ul {
     list-style: none;

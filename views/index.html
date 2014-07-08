@@ -195,15 +195,74 @@
 
 </div>
 
-<div data-role="view" id="app-main-tabstrip" data-title="DTI-TDL" data-layout="mobile-tabstrip">
+<div data-role="layout" id="app-main-tabstrip" data-id="mobile-tabstrip">
     <header data-role="header">
         <div data-role="navbar">
-            <a id="left-drawer-button" class="nav-button" data-align="left" href="#" data-rel="drawer" data-role="button"><span class="k-icon my-drawer"></span></a>
+            <a id="left-drawer-button" class="nav-button" data-align="left" href="#left-drawer" data-rel="drawer" data-role="button" data-icon="mydrawer"></a>
             <span data-role="view-title"></span>
-            <a id="right-drawer-button" class="nav-button" data-align="right" href="#" data-rel="drawer" data-role="button"></a>
+            <a id="right-drawer-button" class="nav-button" data-align="right" href="#right-drawer" data-rel="drawer" data-role="button" data-icon="myinfo"></a>
+        </div>
+    </header>
+
+    <div data-role="footer">
+        <div data-role="tabstrip">
+            <a href="#tabstrip-tacmap" data-icon="contacts">Map
+            </a><a href="#tabstrip-tacmsg" data-icon="history">Messages
+        </a><a href="#tabstrip-tacnews" data-icon="favorites">News
+        </a><a href="#tabstrip-members" data-icon="favorites">Members
+        </a>
+        </div>
+    </div>
+</div>
+
+<div data-role="view" id="tabstrip-tacmap" data-title="Tactical Map" data-layout="mobile-tabstrip">
+
+</div>
+<div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-layout="mobile-tabstrip">
+
+</div>
+<div data-role="view" id="tabstrip-tacnews" data-title="Tactical News" data-layout="mobile-tabstrip">
+
+</div>
+<div data-role="view" id="tabstrip-members" data-title="Members" data-layout="mobile-tabstrip">
+
+</div>
+
+<div data-role="drawer" id="left-drawer" data-title="Config" data-swipe-to-open="false" data-position="left">
+    <header data-role="header">
+        <div data-role="navbar">
+            <span data-role="view-title"></span>
+        </div>
+    </header>
+
+    <ul data-role="listview">
+        <li data-icon="camera">Nature Photography</li>
+        <li data-icon="camera">Wildlife Photography</li>
+        <li data-icon="camera">Night Photography</li>
+        <li data-icon="camera">Fine Art Photography</li>
+        <li data-icon="camera">Portrait Photography</li>
+        <li data-icon="printer">3D Printing</li>
+        <li data-icon="comments">CSS3 Community</li>
+        <li data-icon="comments">HTML5 Community</li>
+        <li data-icon="comments">Java User Groups</li>
+        <li data-icon="comments">Graphic Design</li>
+        <li data-icon="comments">Bodybuilding</li>
+        <li data-icon="comments">JavaScript</li>
+        <li data-icon="comments">C#</li>
+        <li data-icon="graph">DataViz</li>
+    </ul>
+</div>
+<div data-role="drawer" id="right-drawer" data-title="Info" data-swipe-to-open="false" data-position="right">
+    <header data-role="header">
+        <div data-role="navbar">
+            <span id="connected_profile" data-align="left">Default</span>
+            <span data-role="view-title"></span>
+            <span id="connected_time" data-align="right">00:00:00</span>
         </div>
     </header>
 </div>
+
+
 <div class="k-loading-mask" style="width:100%;height:100%;background-color: rgba(255,255,255,0.8);">
     <span class="k-loading-text">Loading...</span>
     <div class="k-loading-image">
@@ -298,7 +357,8 @@ function requestMsg(msg) {
         }
 
         if(obj.msg_name=='response connect' && (obj.msg_err==""||obj.msg_err==null)) {
-            app.navigate("app-main-tabstrip","slide:right");
+            app.navigate("tabstrip-tacmap","slide:right");
+            $('#connected_profile').text($('#comm_profile option:selected').text());
         } else {
             $('#db-error').text('Cannot update profile : '+obj.msg_err);
             $('#modalview-db-error').kendoMobileModalView('open');
