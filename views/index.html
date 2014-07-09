@@ -11,6 +11,7 @@
     <link href="../resources/styles/default.css" rel="stylesheet">
     <script src="../lib/kendoUI/js/jquery.min.js"></script>
     <script src="../lib/kendoUI/js/kendo.all.min.js"></script>
+    <script src="../js/jquery.runner.js"></script>
 
 </head>
 <body>
@@ -255,11 +256,20 @@
 <div data-role="drawer" id="right-drawer" data-title="Info" data-swipe-to-open="false" data-position="right">
     <header data-role="header">
         <div data-role="navbar">
-            <span id="connected_profile" data-align="left">Default</span>
             <span data-role="view-title"></span>
-            <span id="connected_time" data-align="right">00:00:00</span>
+
         </div>
     </header>
+
+            <div data-align="left">
+                <p style="margin-bottom: 0px; font-size: smaller;">Connected as:</p>
+                <p id="connected_profile" style="margin-top: 0px;">Default</p>
+            </div>
+            <div data-align="right">
+                <p style="margin-bottom: 0px; font-size: smaller;">Connected time:</p>
+                <p id="connected_time" style="margin-top: 0px;">Default</p>
+            </div>
+
 </div>
 
 
@@ -359,6 +369,7 @@ function requestMsg(msg) {
         if(obj.msg_name=='response connect' && (obj.msg_err==""||obj.msg_err==null)) {
             app.navigate("tabstrip-tacmap","slide:right");
             $('#connected_profile').text($('#comm_profile option:selected').text());
+            $('#connected_time').runner('start');
         } else {
             $('#db-error').text('Cannot update profile : '+obj.msg_err);
             $('#modalview-db-error').kendoMobileModalView('open');
@@ -530,6 +541,7 @@ $(document).ready(function(){
     setTimeout(requestMsg,1000,reqMsg);
     //console.log(process.mainModule.exports.dirname);
     app = new kendo.mobile.Application(document.body);
+    $('#connected_time').runner();
 });
 
 </script>
