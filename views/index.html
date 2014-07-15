@@ -12,6 +12,8 @@
     <script src="../lib/kendoUI/js/jquery.min.js"></script>
     <script src="../lib/kendoUI/js/kendo.all.min.js"></script>
     <script src="../js/jquery.runner.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"> </script>
+    <script type="text/javascript" src="../js/earth_async.js"> </script>
 
 </head>
 <body>
@@ -217,7 +219,7 @@
 </div>
 
 <div data-role="view" id="tabstrip-tacmap" data-title="Tactical Map" data-layout="mobile-tabstrip">
-
+    <div id="map_holder"></div>
 </div>
 <div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-layout="mobile-tabstrip">
 
@@ -288,6 +290,7 @@ var reconnectAttempts = 0;
 var maxReconnectAttempts = 3;
 var reqMsg = "";
 var isFirstResponse = true;
+var win = gui.Window.get();
 function requestMsg(msg) {
 
     client = net.connect(9889, 'localhost');
@@ -367,7 +370,9 @@ function requestMsg(msg) {
         }
 
         if(obj.msg_name=='response connect' && (obj.msg_err==""||obj.msg_err==null)) {
+            initialize();
             app.navigate("tabstrip-tacmap","slide:right");
+            
             $('#connected_profile').text($('#comm_profile option:selected').text());
             $('#connected_time').runner('start');
         } else {
@@ -536,6 +541,55 @@ function connectSerial() {
     reqMsg =formatControlMessage('connect', params);
     setTimeout(requestMsg,1000,reqMsg);
 }
+
+//////////////////////////////////////////////////
+// Google Earth setup
+////////////////////////////////////////////////
+     // Called when the plugin loads sucessfully.
+    function drawEarth(earth_api) {
+       var earth = earth_api;
+       earth.getWindow().setVisibility(true);
+    }
+
+    // Called when the plugin cannot load.
+    // Usually this means the plugin is not installed.
+    function earthError() {
+      alert('Earth plugin not available.');
+    }
+
+    // Called when the JavaScript API loads.
+    // This doesn't necessarily mean the plugin will load, but
+    // you can call google.earth.createInstance now.
+    function loadSuccessful() {
+      if($('#map3d').length) {  
+        $('#map3d').remove();
+      } 
+      $('#map_holder').css('width',win.width);
+      $('#map_holder').css('height',win.height-100);
+      $('#map_holder').css('background-color','#000000');
+      $('#map_holder').append('<div id="map3d"></div>');  
+      $('#map3d').css('width',win.width);
+      $('#map3d').css('height',win.height-200);
+      google.earth.createInstance('map3d', drawEarth, earthError);
+    }
+
+    // Called when the JavaScript API doesn't load.
+    function loadError() {
+      alert('Unable to load Google Earth JavaScript API.');
+    }
+
+    // Trigger the loading of the Earth API.
+    // When the API loads we call the success function which
+    // should have access to the full Earth JS API.  The error
+    // callback here is called when the JS Earth API never loads.
+    function initialize() {
+      var loaderOptions = {
+        'other_params': 'sensor=false',
+        'success': loadSuccessful,
+        'error': loadError
+      };
+      loadEarthApi(loaderOptions);
+    };
 $(document).ready(function(){
     reqMsg =formatControlMessage('request server status', null);
     setTimeout(requestMsg,1000,reqMsg);
