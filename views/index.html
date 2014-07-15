@@ -564,12 +564,12 @@ function connectSerial() {
       if($('#map3d').length) {  
         $('#map3d').remove();
       } 
-      $('#map_holder').css('width',win.width);
-      $('#map_holder').css('height',win.height-100);
+      $('#map_holder').css('width',win.width-10);
+      $('#map_holder').css('height',win.height-174);
       $('#map_holder').css('background-color','#000000');
       $('#map_holder').append('<div id="map3d"></div>');  
-      $('#map3d').css('width',win.width);
-      $('#map3d').css('height',win.height-200);
+      $('#map3d').css('width',win.width-10);
+      $('#map3d').css('height',win.height-174);
       google.earth.createInstance('map3d', drawEarth, earthError);
     }
 
