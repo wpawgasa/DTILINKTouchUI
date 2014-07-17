@@ -11,7 +11,8 @@
     "min_width": 800,
     "min_height": 600,
     "toolbar": true,
-     "kiosk" : false
+     "kiosk" : false,
+      "frame" : true
   },
   "webkit" : {
     "plugin":true  

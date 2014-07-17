@@ -26,7 +26,7 @@
             <p>DTI-TDL</p>
         </div>
         <div id="content">
-            <a id="settingBtn" class="boxbutton" href="#serial_setting_form" data-role="button" data-transition="overlay:up">
+            <a id="settingBtn" class="boxbutton" href="#main_setting_form" data-role="button" data-transition="overlay:up">
                 <img src="../resources/images/setting2.png" width="64" height="64"/>
                 SETTINGS
             </a>
@@ -54,24 +54,64 @@
 
 </div>
 
-
-<div data-role="view" id="serial_setting_form" data-title="Settings" data-transition="overlay:up" data-persist="true">
+<div data-role="view" id="main_setting_form" data-init="initMainSettingForm" data-title="Settings" data-transition="overlay:up" data-persist="true">
     <header data-role="header">
         <div data-role="navbar">
-            <a id="setting-back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>
+            <a id="main-setting-back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>
             <span data-role="view-title"></span>
-            <a id="setting-save-button" class="nav-button" data-align="right" data-role="button">Save</a>
+            <div data-align="right">
+                <a class="delete-button" id="main-setting-delete-button"  data-role="button">Delete</a>
+
+                <a id="main-setting-save-button" class="nav-button"  data-role="button">Save</a>
+            </div>
+
         </div>
     </header>
-    <form action="./index.html">
-        <ul id="setting_list_form" data-role="listview" data-style="inset">
-            <li>
-                <label>Profile
-                    <select id="comm_profile" onChange="changeProfile()">
 
-                    </select>
-                </label>
+
+
+        <ul data-role="listview" data-style="inset" data-type="group">
+            <li>Profile
+                <ul>
+                    <li>
+                        <label>Select profile
+                            <select id="comm_profile" onChange="changeProfile()">
+
+                            </select>
+                        </label>
+                    </li>
+                </ul>
             </li>
+        </ul>
+
+        <ul data-role="listview" data-style="inset" data-type="group">
+            <li>Settings
+                <ul>
+                    <li><a href="#serial-setting-view" data-transition="slide:left">Serial port setting</a></li>
+                    <li><a href="#gps-setting-view" data-transition="slide:left">GPS setting</a></li>
+                    <li><a href="#radio-setting-view" data-transition="slide:left">Radio setting</a></li>
+                </ul>
+            </li>
+        </ul>
+
+        <div data-role="footer" style="background: none; padding: 5px; text-align: center;">
+
+        </div>
+
+</div>
+
+
+<div data-role="view" id="serial-setting-view" data-title="Serial Port Setting" data-persist="true">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a id="serial-setting-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
+            <span data-role="view-title"></span>
+            <a id="serial-setting-save-button" class="nav-button" data-align="right" data-role="button">Save</a>
+        </div>
+    </header>
+
+        <ul id="serial_setting_list_form" data-role="listview" data-style="inset">
+
             <li>
                 <label>Communication Port
                     <select id="comm_port">
@@ -136,12 +176,115 @@
             </li>
 
         </ul>
-        <div data-role="footer" style="background: none; padding: 5px; text-align: center;">
-            <a class="delete-button" id="setting-delete-button" type="button" data-role="button">Delete</a>
-        </div>
-    </form>
+
+
 </div>
 
+<div data-role="view" id="gps-setting-view" data-title="GPS Setting" data-persist="true">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a id="gps-setting-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
+            <span data-role="view-title"></span>
+            <a id="gps-setting-save-button" class="nav-button" data-align="right" data-role="button">Save</a>
+        </div>
+    </header>
+
+    <ul id="gps_setting_list_form" data-role="listview" data-style="inset">
+
+        <li>
+            <label>GPS Mode
+                <select id="gps_mode">
+                    <option value="1">Transponder</option>
+                    <option value="2">PC/Base Station</option>
+                    <option value="3">Marine Radar</option>
+                    <option value="4">GPS Display</option>
+                    <option value="12" selected>TDMA Data</option>
+                </select>
+            </label>
+        </li>
+        <li>
+            <label>GPS positioning
+                <input data-role="switch" id="gps_position" checked="checked" />
+            </label>
+        </li>
+        <li>
+            <label>Position update rate (s)
+                <input id="pos_update_rate" type="range" max="99" min="1" value="2" />
+            </label>
+        </li>
+        <li>
+            <label>Position report rate (s)
+                <input id="pos_tx_rate" type="range" max="99" min="1" value="5" />
+            </label>
+        </li>
+
+
+    </ul>
+
+
+</div>
+<div data-role="view" id="radio-setting-view" data-title="GPS Setting" data-persist="true">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a id="radio-setting-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
+            <span data-role="view-title"></span>
+            <a id="radio-setting-save-button" class="nav-button" data-align="right" data-role="button">Save</a>
+        </div>
+    </header>
+    <ul data-role="listview" data-style="inset" data-type="group">
+        <li>
+            OTA Baud Rate
+            <ul>
+                <li>
+                    <label>
+                        <input name="ota_baud" type="radio" value="4" />
+                        4800
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input name="ota_baud" type="radio" value="5" checked="checked" />
+                        9600
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input name="ota_baud" type="radio" value="6" />
+                        19200
+                    </label>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <ul data-role="listview" data-style="inset">
+
+
+        <li>
+            <label>Slot time (ms)
+                <input id="slot_time" type="number" value="100" />
+            </label>
+        </li>
+        <li>
+            <label>TDMA frame time (s)
+                <input id="frame_time" type="number" value="1" />
+            </label>
+        </li>
+        <li>
+            <label>Frequency (MHz)
+                <input id="frequency" type="number" value="145.25" />
+            </label>
+        </li>
+        <li>
+            <label>Power output
+                <input id="pwr_output" type="range" max="100" min="0" value="60" />
+            </label>
+        </li>
+
+
+    </ul>
+
+
+</div>
 
 <div data-role="modalview" id="modalview-database-error" style="width: 220px;">
     <div data-role="header">
@@ -327,10 +470,16 @@ function requestMsg(msg) {
             for(var i=0;i<conn_profiles.length;i++) {
                 var conn_profile = conn_profiles[i];
                 //console.log(conn_profile);
-                $('#comm_profile').append('<option value="'+conn_profile.profileId+'">'+conn_profile.profileName+'</option>');
+                if(conn_profile.profileId==1) {
+                    $('#comm_profile').append('<option value="'+conn_profile.profileId+'">'+conn_profile.profileName+' (Default)</option>');
+                } else {
+                    $('#comm_profile').append('<option value="'+conn_profile.profileId+'">'+conn_profile.profileName+'</option>');
+                }
+
 
             }
-            $('#comm_profile').append('<option value="0">New profile</option>');
+            //$('#comm_profile').append('<option value="0">New profile</option>');
+
             if(isFirstResponse) {
                 initApp();
                 isFirstResponse = false;
@@ -405,7 +554,7 @@ function initApp() {
     //getProfile(1);
     //$('#comm_profile').change(changeProfile());
 
-    $('#setting-save-button').click(function(){
+    $('#main-setting-save-button').click(function(){
         //console.log('--- '+$('#new_comm_profile').val());
         if($('#new_comm_profile').val()!=undefined) {
             if($('#new_comm_profile').val()=="") {
@@ -444,9 +593,20 @@ function initApp() {
 
 }
 
+function initMainSettingForm() {
+    var body = $("#main_setting_form");
+
+    if (kendo.ui.DropDownList) {
+        $("#comm_profile").kendoDropDownList({
+            // The options are needed only for the desktop demo, remove them for mobile.
+            popup: { appendTo: body },
+            animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
+        });
+    }
+}
 function changeProfile() {
 
-    //console.log($('#comm_profile option:selected').val());
+    console.log($('#comm_profile option:selected').val());
     if($('#comm_profile option:selected').val()!=0) {
         getProfile($('#comm_profile option:selected').val());
     } else {
@@ -595,6 +755,9 @@ $(document).ready(function(){
     setTimeout(requestMsg,1000,reqMsg);
     //console.log(process.mainModule.exports.dirname);
     app = new kendo.mobile.Application(document.body);
+    if (kendo.ui.Slider) {
+        $("#pwr_output").kendoSlider({ tooltip: { enabled: true } });
+    }
     $('#connected_time').runner();
 });
 

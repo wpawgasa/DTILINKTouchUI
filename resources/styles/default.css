@@ -4,6 +4,7 @@ body {
     color:#fff;
     background-image: url("../images/patterns/greywashwall/grey_wash_wall/grey_wash_wall.png") !important;
     background-repeat: repeat;
+    margin: 0; padding: 0; overflow: hidden;
 }
 
 
@@ -91,7 +92,12 @@ h1 {
     border-color: #ffffff;
 
 }
+.delete-button:active  {
+    color: #ffffff !important;
+    background: #ff0000;
+    border-color: #ffffff;
 
+}
 #setting_list_form {
     margin: 0 !important;
 }
@@ -139,6 +145,12 @@ h1 {
 #left-drawer {
     background-image: url('../images/patterns/greywashwall/grey_wash_wall/grey_wash_wall.png');
     background-repeat: repeat;
+}
+
+.km-listview-label input[type=radio] {
+    width: 1em;
+    height: 1em;
+    border-radius: 1em !important;
 }
 /*
 #content ul {
