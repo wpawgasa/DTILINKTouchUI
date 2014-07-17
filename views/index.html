@@ -60,9 +60,10 @@
             <a id="main-setting-back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>
             <span data-role="view-title"></span>
             <div data-align="right">
-                <a class="delete-button" id="main-setting-delete-button"  data-role="button">Delete</a>
 
+                <a id="main-setting-new-button" class="nav-button"  data-role="button">New</a>
                 <a id="main-setting-save-button" class="nav-button"  data-role="button">Save</a>
+                <a class="delete-button" id="main-setting-delete-button"  data-role="button">Delete</a>
             </div>
 
         </div>
@@ -431,9 +432,24 @@ var app;
 var client = null;
 var reconnectAttempts = 0;
 var maxReconnectAttempts = 3;
-var reqMsg = "";
 var isFirstResponse = true;
+var isCmdServerBusy = false;
 var win = gui.Window.get();
+
+function cmdMessage(msg,params) {
+    this.msg = msg;
+    this.params = params;
+    this.reqMsg = "";
+}
+cmdMessage.prototype = {
+    constructor: cmdMessage,
+    formatControlMessage: function() {
+        this.reqMsg = JSON.stringify({
+            msg_name: this.msg,
+            msg_params: this.params
+        });
+    }
+}
 function requestMsg(msg) {
 
     client = net.connect(9889, 'localhost');
@@ -448,13 +464,16 @@ function requestMsg(msg) {
 
         client.destroy();
         reconnectAttempts = 0;
-
+        isCmdServerBusy = false;
         if(obj.msg_name=='response server status') {
             var serverStatus = obj.serverStatus;
             if(serverStatus.status_name=="isRunning"&&serverStatus.status_result=="OK") {
 
-                reqMsg = formatControlMessage('get profiles', null);
+                var reqMsg = new cmdMessage('get profiles', null);
+                reqMsg.formatControlMessage();
                 requestMsg(reqMsg);
+
+
 
             }
 
@@ -511,7 +530,8 @@ function requestMsg(msg) {
         }
 
         if(obj.msg_name=='response update profile' && (obj.msg_err==""||obj.msg_err==null)) {
-            reqMsg = formatControlMessage('get profiles', null);
+            var reqMsg = new cmdMessage('get profiles', null);
+            reqMsg.formatControlMessage();
             requestMsg(reqMsg);
         } else {
             $('#db-error').text('Cannot update profile : '+obj.msg_err);
@@ -539,53 +559,28 @@ function requestMsg(msg) {
         console.log(err);
         if(reconnectAttempts<=maxReconnectAttempts) {
             reconnectAttempts++;
-            setTimeout(requestMsg,500,msg);
+            setTimeout(requestMsg,200,msg);
         } else if(err.code=='ECONNREFUSED') {
             $('#modalview-connection-error').kendoMobileModalView('open');
         }
 
     });
+    if(!isCmdServerBusy) {
+        client.write(msg.reqMsg,'UTF-8');
+        client.end();
+        isCmdServerBusy = true;
+    } else {
+        setTimeout(requestMsg,200,msg);
+    }
 
-    client.write(msg,'UTF-8');
-    client.end();
+
+
 }
 
 function initApp() {
     //getProfile(1);
     //$('#comm_profile').change(changeProfile());
 
-    $('#main-setting-save-button').click(function(){
-        //console.log('--- '+$('#new_comm_profile').val());
-        if($('#new_comm_profile').val()!=undefined) {
-            if($('#new_comm_profile').val()=="") {
-                $('#form-error').text("Profile name cannot be blank");
-                $('#modalview-form-error').kendoMobileModalView('open');
-            } else {
-                var params = '{"profileName":"'+$('#new_comm_profile').val()+'",'
-                        +'"comm_port":"'+$('#comm_port').val()+'",'
-                        +'"bit_rates":'+$('#bit_rates').val()+','
-                        +'"data_bits":'+$('#databits').val()+','
-                        +'"stop_bits":"'+$('#stopbits').val()+'",'
-                        +'"parity":"'+$('#parity').val()+'",'
-                        +'"flowcontrol":"'+$('#flowcontrol').val()+'"'
-                        +'}';
-                reqMsg = formatControlMessage('add new profile', params);
-                setTimeout(requestMsg,100,reqMsg);
-            }
-
-        } else if($('#comm_profile').val()!=undefined&&$('#comm_profile').val()!=0) {
-            var params = '{"profileId":'+$('#comm_profile').val()+','
-                    +'"comm_port":"'+$('#comm_port').val()+'",'
-                    +'"bit_rates":'+$('#bit_rates').val()+','
-                    +'"data_bits":'+$('#databits').val()+','
-                    +'"stop_bits":"'+$('#stopbits').val()+'",'
-                    +'"parity":"'+$('#parity').val()+'",'
-                    +'"flowcontrol":"'+$('#flowcontrol').val()+'"'
-                    +'}';
-            reqMsg = formatControlMessage('update profile', params);
-            setTimeout(requestMsg,100,reqMsg);
-        }
-    });
 
     $('#connectBtn').click(function(){
         connectSerial();
@@ -603,6 +598,27 @@ function initMainSettingForm() {
             animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
         });
     }
+
+
+
+    $('#main-setting-save-button').click(function(){
+
+        if($('#comm_profile').val()=="") {
+            $('#form-error').text("Profile name cannot be blank");
+            $('#modalview-form-error').kendoMobileModalView('open');
+        } else {
+            var params = '{"profileName":"'+$('#comm_profile').val()+'"'
+                    +'}';
+
+            var reqMsg = new cmdMessage('update profile', params);
+            reqMsg.formatControlMessage();
+            requestMsg(reqMsg);
+        }
+
+
+    });
+
+
 }
 function changeProfile() {
 
@@ -648,16 +664,16 @@ function bin2String(array) {
     console.log(result);
     return result;
 }
-function formatControlMessage(cmsg,params) {
-
-
-    return JSON.stringify({
-        msg_name: cmsg,
-        msg_params: params
-    });
-
-
-}
+//function formatControlMessage(cmsg,params) {
+//
+//
+//    return JSON.stringify({
+//        msg_name: cmsg,
+//        msg_params: params
+//    });
+//
+//
+//}
 
 
 function revealApp() {
@@ -666,8 +682,11 @@ function revealApp() {
 
 function closeModalViewConnErrAndRetry() {
     $('#modalview-connection-error').kendoMobileModalView('close');
-    var reqStatus =formatControlMessage('request server status', null);
-    setTimeout(requestMsg,500,reqStatus);
+//    var reqStatus =formatControlMessage('request server status', null);
+//    setTimeout(requestMsg,500,reqStatus);
+    var reqMsg = new cmdMessage('request server status', null);
+    reqMsg.formatControlMessage();
+    requestMsg(reqMsg);
 }
 
 function closeModalViewConnErrAndExit() {
@@ -751,7 +770,8 @@ function connectSerial() {
       loadEarthApi(loaderOptions);
     };
 $(document).ready(function(){
-    reqMsg =formatControlMessage('request server status', null);
+    var reqMsg = new cmdMessage('request server status', null);
+    reqMsg.formatControlMessage();
     setTimeout(requestMsg,1000,reqMsg);
     //console.log(process.mainModule.exports.dirname);
     app = new kendo.mobile.Application(document.body);
