@@ -61,7 +61,7 @@
             <span data-role="view-title"></span>
             <div data-align="right">
 
-                <a id="main-setting-new-button" class="nav-button"  data-role="button">New</a>
+                <a id="main-setting-new-button" class="nav-button" href="#add_profile_form"  data-role="button" data-transition="slide:left">New</a>
                 <a id="main-setting-save-button" class="nav-button"  data-role="button">Save</a>
                 <a class="delete-button" id="main-setting-delete-button"  data-role="button">Delete</a>
             </div>
@@ -101,6 +101,39 @@
 
 </div>
 
+<div data-role="view" id="add_profile_form" data-init="initAddProfileForm" data-title="Add New Profile" data-persist="true">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a id="addprofile-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
+            <span data-role="view-title"></span>
+            <div data-align="right">
+
+                <a id="addprofile-save-button" class="nav-button"  data-role="button">Save</a>
+
+            </div>
+
+        </div>
+    </header>
+
+
+
+    <ul data-role="listview" data-style="inset" data-type="group">
+        <li>Profile
+            <ul>
+                <li>
+                    <label>Profile name
+                        <input type="text" id="new_profile_name" />
+                    </label>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+
+
+
+
+</div>
 
 <div data-role="view" id="serial-setting-view" data-title="Serial Port Setting" data-persist="true">
     <header data-role="header">
@@ -620,6 +653,31 @@ function initMainSettingForm() {
 
 
 }
+
+function initAddProfileForm() {
+
+
+
+    $('#addprofile-save-button').click(function(){
+
+        if($('#new_profile_name').val()=="") {
+            $('#form-error').text("Profile name cannot be blank");
+            $('#modalview-form-error').kendoMobileModalView('open');
+        } else {
+            var params = '{"profileName":"'+$('#new_profile_name').val()+'"'
+                    +'}';
+
+            var reqMsg = new cmdMessage('add new profile', params);
+            reqMsg.formatControlMessage();
+            requestMsg(reqMsg);
+        }
+
+
+    });
+
+
+}
+
 function changeProfile() {
 
     console.log($('#comm_profile option:selected').val());
@@ -641,11 +699,14 @@ function changeProfile() {
 
 }
 function getProfile(id) {
-    reqMsg = formatControlMessage('get profile', '{"profileId":'+id+'}');
-    setTimeout(requestMsg,500,reqMsg);
+
+    var reqMsg = new cmdMessage('get profile', '{"profileId":'+id+'}');
+    reqMsg.formatControlMessage();
+    requestMsg(reqMsg);
 }
 function getProfiles() {
-    reqMsg = formatControlMessage('get profiles', null);
+    var reqMsg = new cmdMessage('get profiles', null);
+    reqMsg.formatControlMessage();
     requestMsg(reqMsg);
 }
 function bin2String(array) {
