@@ -54,7 +54,7 @@
 
 </div>
 
-<div data-role="view" id="main_setting_form" data-init="initMainSettingForm" data-title="Settings" data-transition="overlay:up" data-persist="true">
+<div data-role="view" id="main_setting_form" data-show="initMainSettingForm" data-title="Settings" data-transition="overlay:up" data-persist="true">
     <header data-role="header">
         <div data-role="navbar">
             <a id="main-setting-back-button" class="nav-button" data-align="left" href="#welcomeView" data-role="button">Back</a>
@@ -62,7 +62,7 @@
             <div data-align="right">
 
                 <a id="main-setting-new-button" class="nav-button" href="#add_profile_form"  data-role="button" data-transition="slide:left">New</a>
-                <a id="main-setting-save-button" class="nav-button"  data-role="button">Save</a>
+                <a id="main-setting-edit-button" class="nav-button" href="#edit_profile_form"  data-role="button" data-transition="slide:left">Edit</a>
                 <a class="delete-button" id="main-setting-delete-button"  data-role="button">Delete</a>
             </div>
 
@@ -101,7 +101,7 @@
 
 </div>
 
-<div data-role="view" id="add_profile_form" data-init="initAddProfileForm" data-title="Add New Profile" data-persist="true">
+<div data-role="view" id="add_profile_form" data-show="initAddProfileForm" data-title="Add New Profile" data-persist="true">
     <header data-role="header">
         <div data-role="navbar">
             <a id="addprofile-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
@@ -135,7 +135,41 @@
 
 </div>
 
-<div data-role="view" id="serial-setting-view" data-title="Serial Port Setting" data-persist="true">
+<div data-role="view" id="edit_profile_form" data-show="initEditProfileForm" data-title="Add New Profile" data-persist="true">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a id="editprofile-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
+            <span data-role="view-title"></span>
+            <div data-align="right">
+
+                <a id="editprofile-save-button" class="nav-button"  data-role="button">Save</a>
+
+            </div>
+
+        </div>
+    </header>
+
+
+
+    <ul data-role="listview" data-style="inset" data-type="group">
+        <li>Profile
+            <ul>
+                <li>
+                    <label>Profile name
+                        <input type="text" id="edit_profile_name" value="" />
+                    </label>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+
+
+
+
+</div>
+
+<div data-role="view" id="serial-setting-view" data-show="initSerialSettingForm" data-title="Serial Port Setting" data-persist="true">
     <header data-role="header">
         <div data-role="navbar">
             <a id="serial-setting-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
@@ -144,8 +178,9 @@
         </div>
     </header>
 
-        <ul id="serial_setting_list_form" data-role="listview" data-style="inset">
-
+        <ul id="serial_setting_list_form" data-role="listview" data-style="inset" data-type="group">
+            <li>Serial Port Settings
+                <ul>
             <li>
                 <label>Communication Port
                     <select id="comm_port">
@@ -208,13 +243,14 @@
                     </select>
                 </label>
             </li>
-
+</ul>
+            </li>
         </ul>
 
 
 </div>
 
-<div data-role="view" id="gps-setting-view" data-title="GPS Setting" data-persist="true">
+<div data-role="view" id="gps-setting-view" data-show="initGPSSettingForm" data-title="GPS Setting" data-persist="true">
     <header data-role="header">
         <div data-role="navbar">
             <a id="gps-setting-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
@@ -223,8 +259,9 @@
         </div>
     </header>
 
-    <ul id="gps_setting_list_form" data-role="listview" data-style="inset">
-
+    <ul id="gps_setting_list_form" data-role="listview" data-style="inset" data-type="group">
+        <li>GPS Settings
+            <ul>
         <li>
             <label>GPS Mode
                 <select id="gps_mode">
@@ -238,20 +275,21 @@
         </li>
         <li>
             <label>GPS positioning
-                <input data-role="switch" id="gps_position" checked="checked" />
+                <input type="checkbox" id="gps_position" checked="checked" value="1" />
             </label>
         </li>
         <li>
             <label>Position update rate (s)
-                <input id="pos_update_rate" type="range" max="99" min="1" value="2" />
+                <input id="pos_update_rate" type="number" max="99" min="1" value="2" />
             </label>
         </li>
         <li>
             <label>Position report rate (s)
-                <input id="pos_tx_rate" type="range" max="99" min="1" value="5" />
+                <input id="pos_tx_rate" type="number" max="99" min="1" value="5" />
             </label>
         </li>
-
+</ul>
+        </li>
 
     </ul>
 
@@ -320,7 +358,7 @@
 
 </div>
 
-<div data-role="modalview" id="modalview-database-error" style="width: 220px;">
+<div data-role="modalview" id="modalview-db-error" style="width: 220px;">
     <div data-role="header">
         <div data-role="navbar">
             <span class="modal-header">Database error</span>
@@ -330,6 +368,7 @@
     <div class="modal-content" data-role="contentview" style="padding: 5px;">
 
         <p id="db-error"></p>
+        <div id="req-data"></div>
     </div>
 
     <div data-role="footer" style="background: none; padding: 5px;">
@@ -371,6 +410,24 @@
 
     <div data-role="footer" style="background: none; padding: 5px;">
         <a class="modal-button" data-click="closeModalViewFormErr" id="modalview-form-exit-button" type="button" data-role="button">OK</a>
+    </div>
+
+</div>
+<div data-role="modalview" id="modalview-confirm" style="width: 220px;">
+    <div data-role="header">
+        <div data-role="navbar">
+            <span class="modal-header">Are you sure?</span>
+        </div>
+    </div>
+
+    <div class="modal-content" data-role="contentview" style="padding: 5px;">
+        <p id="confirm-msg"></p>
+        <div id="confirm-req-data"></div>
+    </div>
+
+    <div data-role="footer" style="background: none; padding: 5px;">
+        <a class="modal-button" data-click="modalViewConfirm" id="modalview-confirm-button" type="button" data-role="button">Yes</a>
+        <a class="modal-button" data-click="modalViewCancel" id="modalview-cancel-button" type="button" data-role="button">No</a>
     </div>
 
 </div>
@@ -501,7 +558,7 @@ function requestMsg(msg) {
         if(obj.msg_name=='response server status') {
             var serverStatus = obj.serverStatus;
             if(serverStatus.status_name=="isRunning"&&serverStatus.status_result=="OK") {
-
+                revealApp();
                 var reqMsg = new cmdMessage('get profiles', null);
                 reqMsg.formatControlMessage();
                 requestMsg(reqMsg);
@@ -514,41 +571,56 @@ function requestMsg(msg) {
 
         if(obj.msg_name=='list profiles' && (obj.msg_err==""||obj.msg_err==null)) {
             //console.log(obj);
-            var conn_profiles = obj.conn_profiles;
+            var user_profiles = obj.userprofiles;
             if($('#new_comm_profile').val()!=undefined) {
                 $('#new_comm_profile').replaceWith('<select id="comm_profile"></select>');
             }
             $('#comm_profile').empty();
-            for(var i=0;i<conn_profiles.length;i++) {
-                var conn_profile = conn_profiles[i];
+            for(var i=0;i<user_profiles.length;i++) {
+                var user_profile = user_profiles[i];
                 //console.log(conn_profile);
-                if(conn_profile.profileId==1) {
-                    $('#comm_profile').append('<option value="'+conn_profile.profileId+'">'+conn_profile.profileName+' (Default)</option>');
+                if(user_profile.profileId==1) {
+                    $('#comm_profile').append('<option value="'+user_profile.profileId+'">'+user_profile.profileName+' (Default)</option>');
                 } else {
-                    $('#comm_profile').append('<option value="'+conn_profile.profileId+'">'+conn_profile.profileName+'</option>');
+                    $('#comm_profile').append('<option value="'+user_profile.profileId+'">'+user_profile.profileName+'</option>');
                 }
 
 
             }
             //$('#comm_profile').append('<option value="0">New profile</option>');
 
+            $("#comm_profile").kendoDropDownList();
             if(isFirstResponse) {
                 initApp();
                 isFirstResponse = false;
             }
-            getProfile(1);
+            if(obj.msg_params!=null) {
+                var params = jQuery.parseJSON(obj.msg_params);
+                getProfile(params.profileId);
+            } else {
+                getProfile(1);
+            }
 
 
-        } else {
+
+        } else if(obj.msg_name=='list profiles') {
             $('#db-error').text('Cannot list profiles from DB');
             $('#modalview-db-error').kendoMobileModalView('open');
         }
 
         if(obj.msg_name=='response profile' && (obj.msg_err==""||obj.msg_err==null)) {
-            console.log(obj);
-            var conn_profiles = obj.conn_profiles;
+            console.log("no err");
 
-            var conn_profile = conn_profiles[0];
+            var user_profiles = obj.userprofiles;
+
+            var user_profile = user_profiles[0];
+
+            var conn_profile = user_profile.connProfile;
+
+            var gps_profile = user_profile.gpsProfile;
+
+            var radio_profile = user_profile.radioProfile;
+
             //console.log(conn_profile);
             $('#comm_port').val(conn_profile.comm_port);
             $('#bit_rates').val(conn_profile.bit_rates);
@@ -556,18 +628,113 @@ function requestMsg(msg) {
             $('#stop_bits').val(conn_profile.stop_bits);
             $('#parity').val(conn_profile.parity);
             $('#flowcontrol').val(conn_profile.flowcontrol);
-            revealApp();
-        } else {
+            $('#gps_mode').val(gps_profile.gpsmode);
+            $("#gps_position").kendoMobileSwitch();
+            var switchInstance = $("#gps_position").data("kendoMobileSwitch");
+            if(gps_profile.gpsenabled==true) {
+                //console.log('gps enabled');
+                //$('#gps_position').prop('checked',true);
+                switchInstance.check(true);
+            } else {
+                //console.log('gps disabled');
+                //$('#gps_position').prop('checked',false);
+                switchInstance.check(false);
+            }
+
+            $('#pos_update_rate').val(gps_profile.gpsupdate);
+            $('#pos_tx_rate').val(gps_profile.gpsreport);
+            $('input[name="ota_baud"][value="' + radio_profile.otabaud + '"]').prop('checked', true);
+            $('#slot_time').val(radio_profile.slottime);
+            $('#frame_time').val(radio_profile.frametime);
+            $('#frequency').val(radio_profile.frequency);
+            $('#pwr_output').val(radio_profile.power);
+
+            $('#comm_profile option[value='+user_profile.profileId+']').attr('selected', 'selected');
+            $("#comm_profile").kendoDropDownList();
+        } else if(obj.msg_name=='response profile') {
+            console.log("err");
+            var reqMsg = new cmdMessage('get profile', obj.msg_params);
+            reqMsg.formatControlMessage();
+            $('#req-data').data(reqMsg);
             $('#db-error').text('Cannot get profile from DB');
             $('#modalview-db-error').kendoMobileModalView('open');
         }
 
+        if(obj.msg_name=='response add profile' && (obj.msg_err==""||obj.msg_err==null)) {
+            var params = '{"profileId":"'+obj.userprofiles[0].profileId+'"'
+                    +'}';
+            var reqMsg = new cmdMessage('get profiles', params);
+            reqMsg.formatControlMessage();
+            requestMsg(reqMsg);
+            app.navigate('#:back');
+        } else if(obj.msg_name=='response add profile') {
+            var reqMsg = new cmdMessage('add new profile', obj.msg_params);
+            reqMsg.formatControlMessage();
+            $('#req-data').data(reqMsg);
+            $('#db-error').text('Cannot add profile : '+obj.msg_err);
+            $('#modalview-db-error').kendoMobileModalView('open');
+        }
+
         if(obj.msg_name=='response update profile' && (obj.msg_err==""||obj.msg_err==null)) {
+            var params = '{"profileId":"'+obj.userprofiles[0].profileId+'"'
+                    +'}';
+            var reqMsg = new cmdMessage('get profiles', params);
+            reqMsg.formatControlMessage();
+            requestMsg(reqMsg);
+            app.navigate('#:back');
+        } else if(obj.msg_name=='response update profile') {
+            var reqMsg = new cmdMessage('update profile', obj.msg_params);
+            reqMsg.formatControlMessage();
+            $('#req-data').data(reqMsg);
+            $('#db-error').text('Cannot update profile : '+obj.msg_err);
+            $('#modalview-db-error').kendoMobileModalView('open');
+        }
+
+        if(obj.msg_name=='response delete profile' && (obj.msg_err==""||obj.msg_err==null)) {
+            var params = '{"profileId":"'+obj.userprofiles[0].profileId+'"'
+                    +'}';
             var reqMsg = new cmdMessage('get profiles', null);
             reqMsg.formatControlMessage();
             requestMsg(reqMsg);
-        } else {
-            $('#db-error').text('Cannot update profile : '+obj.msg_err);
+
+        } else if(obj.msg_name=='response delete profile') {
+            var reqMsg = new cmdMessage('delete profile', obj.msg_params);
+            reqMsg.formatControlMessage();
+            $('#req-data').data(reqMsg);
+            $('#db-error').text('Cannot delete profile : '+obj.msg_err);
+            $('#modalview-db-error').kendoMobileModalView('open');
+        }
+
+        if(obj.msg_name=='response update serial profile' && (obj.msg_err==""||obj.msg_err==null)) {
+
+
+        } else if(obj.msg_name=='response update serial profile') {
+            var reqMsg = new cmdMessage('update serial profile', obj.msg_params);
+            reqMsg.formatControlMessage();
+            $('#req-data').data(reqMsg);
+            $('#db-error').text('Cannot update serial profile : '+obj.msg_err);
+            $('#modalview-db-error').kendoMobileModalView('open');
+        }
+
+        if(obj.msg_name=='response update gps profile' && (obj.msg_err==""||obj.msg_err==null)) {
+
+
+        } else if(obj.msg_name=='response update gps profile') {
+            var reqMsg = new cmdMessage('update gps profile', obj.msg_params);
+            reqMsg.formatControlMessage();
+            $('#req-data').data(reqMsg);
+            $('#db-error').text('Cannot update gps profile : '+obj.msg_err);
+            $('#modalview-db-error').kendoMobileModalView('open');
+        }
+
+        if(obj.msg_name=='response update radio profile' && (obj.msg_err==""||obj.msg_err==null)) {
+
+
+        } else if(obj.msg_name=='response update radio profile') {
+            var reqMsg = new cmdMessage('update radio profile', obj.msg_params);
+            reqMsg.formatControlMessage();
+            $('#req-data').data(reqMsg);
+            $('#db-error').text('Cannot update radio profile : '+obj.msg_err);
             $('#modalview-db-error').kendoMobileModalView('open');
         }
 
@@ -577,8 +744,9 @@ function requestMsg(msg) {
             
             $('#connected_profile').text($('#comm_profile option:selected').text());
             $('#connected_time').runner('start');
-        } else {
-            $('#db-error').text('Cannot update profile : '+obj.msg_err);
+        } else if(obj.msg_name=='response connect') {
+            console.log("connect err");
+            $('#db-error').text('Cannot connect : '+obj.msg_err);
             $('#modalview-db-error').kendoMobileModalView('open');
         }
     });
@@ -622,8 +790,8 @@ function initApp() {
 }
 
 function initMainSettingForm() {
-    var body = $("#main_setting_form");
 
+    var body = $("#main_setting_form");
     if (kendo.ui.DropDownList) {
         $("#comm_profile").kendoDropDownList({
             // The options are needed only for the desktop demo, remove them for mobile.
@@ -634,29 +802,134 @@ function initMainSettingForm() {
 
 
 
-    $('#main-setting-save-button').click(function(){
+    $('#main-setting-delete-button').click(function(){
 
-        if($('#comm_profile').val()=="") {
-            $('#form-error').text("Profile name cannot be blank");
+        if($('#comm_profile').val()==1) {
+            $('#form-error').text("Cannot delete default profile");
             $('#modalview-form-error').kendoMobileModalView('open');
         } else {
-            var params = '{"profileName":"'+$('#comm_profile').val()+'"'
+            $('#confirm-msg').text("Delete selected profile?");
+
+            var params = '{"profileId":"'+$('#comm_profile option:selected').val()+'"'
                     +'}';
 
-            var reqMsg = new cmdMessage('update profile', params);
+            var reqMsg = new cmdMessage('delete profile', params);
             reqMsg.formatControlMessage();
-            requestMsg(reqMsg);
+            $('#confirm-req-data').data(reqMsg);
+            $('#modalview-confirm').kendoMobileModalView('open');
+
         }
 
 
     });
 
 
+
+}
+
+function initSerialSettingForm() {
+
+    var body = $("#serial-setting-view");
+    if (kendo.ui.DropDownList) {
+        $("#comm_port").kendoDropDownList({
+            // The options are needed only for the desktop demo, remove them for mobile.
+            popup: { appendTo: body },
+            animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
+        });
+        $("#bit_rates").kendoDropDownList({
+            // The options are needed only for the desktop demo, remove them for mobile.
+            popup: { appendTo: body },
+            animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
+        });
+        $("#databits").kendoDropDownList({
+            // The options are needed only for the desktop demo, remove them for mobile.
+            popup: { appendTo: body },
+            animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
+        });
+        $("#stopbits").kendoDropDownList({
+            // The options are needed only for the desktop demo, remove them for mobile.
+            popup: { appendTo: body },
+            animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
+        });
+        $("#parity").kendoDropDownList({
+            // The options are needed only for the desktop demo, remove them for mobile.
+            popup: { appendTo: body },
+            animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
+        });
+        $("#flowcontrol").kendoDropDownList({
+            // The options are needed only for the desktop demo, remove them for mobile.
+            popup: { appendTo: body },
+            animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
+        });
+    }
+
+
+
+    $('#serial-setting-save-button').click(function(){
+
+
+            var params = '{"profileId":"'+$('#comm_profile option:selected').val()+'"'
+                    +',"comm_port":"'+$('#comm_port option:selected').val()+'"'
+                    +',"bit_rates":"'+$('#bit_rates option:selected').val()+'"'
+                    +',"data_bits":"'+$('#databits option:selected').val()+'"'
+                    +',"stop_bits":"'+$('#stopbits option:selected').val()+'"'
+                    +',"parity":"'+$('#parity option:selected').val()+'"'
+                    +',"flowcontrol":"'+$('#flowcontrol option:selected').val()+'"'
+                    +'}';
+
+            var reqMsg = new cmdMessage('update serial profile', params);
+            reqMsg.formatControlMessage();
+            requestMsg(reqMsg);
+
+
+
+    });
+
+
+
+}
+
+function initGPSSettingForm() {
+
+    var body = $("#gps-setting-view");
+    if (kendo.ui.DropDownList) {
+        $("#gps_mode").kendoDropDownList({
+            // The options are needed only for the desktop demo, remove them for mobile.
+            popup: { appendTo: body },
+            animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
+        });
+
+    }
+
+
+
+    $('#gps-setting-save-button').click(function(){
+        var gpsenabled = false;
+        if($('#gps_position').prop('checked')=="checked") {
+            gpsenabled = true;
+        }
+        var params = '{"profileId":"'+$('#comm_profile option:selected').val()+'"'
+                +',"gpsmode":"'+$('#gps_mode option:selected').val()+'"'
+                +',"gpsupdate":'+$('#pos_update_rate').val()+''
+                +',"gpsreport":'+$('#pos_tx_rate').val()+''
+                +',"gpsenabled":'+gpsenabled+''
+                +'}';
+
+        var reqMsg = new cmdMessage('update gps profile', params);
+        reqMsg.formatControlMessage();
+        requestMsg(reqMsg);
+
+
+
+    });
+
+
+
 }
 
 function initAddProfileForm() {
 
-
+    $('#new_profile_name').val('');
 
     $('#addprofile-save-button').click(function(){
 
@@ -668,6 +941,35 @@ function initAddProfileForm() {
                     +'}';
 
             var reqMsg = new cmdMessage('add new profile', params);
+            reqMsg.formatControlMessage();
+            requestMsg(reqMsg);
+        }
+
+
+    });
+
+
+}
+
+function initEditProfileForm() {
+    if($('#comm_profile option:selected').val()==1) {
+        app.navigate("#:back");
+        $('#form-error').text("Cannot edit default profile name");
+        $('#modalview-form-error').kendoMobileModalView('open');
+
+    }
+    $('#edit_profile_name').val($('#comm_profile option:selected').text());
+
+    $('#editprofile-save-button').click(function(){
+
+        if($('#edit_profile_name').val()=="") {
+            $('#form-error').text("Profile name cannot be blank");
+            $('#modalview-form-error').kendoMobileModalView('open');
+        } else {
+            var params = '{"profileName":"'+$('#edit_profile_name').val()+'"'
+                    +'}';
+
+            var reqMsg = new cmdMessage('update profile', params);
             reqMsg.formatControlMessage();
             requestMsg(reqMsg);
         }
@@ -757,16 +1059,28 @@ function closeModalViewConnErrAndExit() {
 
 function closeModalViewDBErrAndRetry() {
     $('#modalview-db-error').kendoMobileModalView('close');
-    setTimeout(requestMsg,500,reqMsg);
+    var msg = $('#req-data').data();
+    setTimeout(requestMsg,200,msg);
 }
 
 function closeModalViewDBErrAndExit() {
-    $('#modalview-connection-error').kendoMobileModalView('close');
+    $('#modalview-db-error').kendoMobileModalView('close');
     //gui.App.quit();
 }
 
 function closeModalViewFormErr() {
     $('#modalview-form-error').kendoMobileModalView('close');
+    //gui.App.quit();
+}
+
+function modalViewConfirm() {
+    $('#modalview-confirm').kendoMobileModalView('close');
+    var msg = $('#confirm-req-data').data();
+    setTimeout(requestMsg,200,msg);
+}
+
+function modalViewCancel() {
+    $('#modalview-confirm').kendoMobileModalView('close');
     //gui.App.quit();
 }
 
