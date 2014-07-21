@@ -3,10 +3,8 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>TDL Touch UI</title>
-    <link href="../lib/kendoUI/styles/kendo.common.min.css" rel="stylesheet" />
-    <link href="../lib/kendoUI/styles/kendo.default.min.css" rel="stylesheet" />
-    <link href="../lib/kendoUI/styles/kendo.dataviz.min.css" rel="stylesheet" />
-    <link href="../lib/kendoUI/styles/kendo.dataviz.default.min.css" rel="stylesheet" />
+    <link href="../lib/kendoUI/styles/kendo.common.min.css" rel="stylesheet">
+    <link href="../lib/kendoUI/styles/kendo.flat.min.css" rel="stylesheet">
     <link href="../lib/kendoUI/styles/kendo.flat.mobile.min.css" rel="stylesheet">
     <link href="../resources/styles/default.css" rel="stylesheet">
     <script src="../lib/kendoUI/js/jquery.min.js"></script>
@@ -250,7 +248,7 @@
 
 </div>
 
-<div data-role="view" id="gps-setting-view" data-show="initGPSSettingForm" data-title="GPS Setting" data-persist="true">
+<div data-role="view" id="gps-setting-view" data-init="initGPSSettingForm" data-model="gps_params" data-title="GPS Setting" data-persist="true">
     <header data-role="header">
         <div data-role="navbar">
             <a id="gps-setting-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
@@ -264,28 +262,28 @@
             <ul>
         <li>
             <label>GPS Mode
-                <select id="gps_mode">
+                <select id="gps_mode" data-bind="value: gpsMode">
                     <option value="1">Transponder</option>
                     <option value="2">PC/Base Station</option>
                     <option value="3">Marine Radar</option>
                     <option value="4">GPS Display</option>
-                    <option value="12" selected>TDMA Data</option>
+                    <option value="12">TDMA Data</option>
                 </select>
             </label>
         </li>
         <li>
             <label>GPS positioning
-                <input type="checkbox" id="gps_position" checked="checked" value="1" />
+                <input data-role="switch" type="checkbox" id="gps_position" data-bind="checked: gpsEnabled" />
             </label>
         </li>
         <li>
             <label>Position update rate (s)
-                <input id="pos_update_rate" type="number" max="99" min="1" value="2" />
+                <input id="pos_update_rate" type="number" max="99" min="1" data-bind="value: gpsUpdate" />
             </label>
         </li>
         <li>
             <label>Position report rate (s)
-                <input id="pos_tx_rate" type="number" max="99" min="1" value="5" />
+                <input id="pos_tx_rate" type="number" max="99" min="1" data-bind="value: gpsReport" />
             </label>
         </li>
 </ul>
@@ -295,7 +293,7 @@
 
 
 </div>
-<div data-role="view" id="radio-setting-view" data-title="GPS Setting" data-persist="true">
+<div data-role="view" id="radio-setting-view" data-init="initRadioSettingForm" data-model="radio_params" data-title="Radio Setting" data-persist="true">
     <header data-role="header">
         <div data-role="navbar">
             <a id="radio-setting-back-button" class="nav-button" data-align="left" href="#main_setting_form" data-role="button" data-transition="slide:right">Back</a>
@@ -303,55 +301,41 @@
             <a id="radio-setting-save-button" class="nav-button" data-align="right" data-role="button">Save</a>
         </div>
     </header>
-    <ul data-role="listview" data-style="inset" data-type="group">
-        <li>
-            OTA Baud Rate
+
+    <ul data-role="listview" data-style="inset"data-type="group">
+        <li>Radio Settings
             <ul>
-                <li>
-                    <label>
-                        <input name="ota_baud" type="radio" value="4" />
-                        4800
-                    </label>
-                </li>
-                <li>
-                    <label>
-                        <input name="ota_baud" type="radio" value="5" checked="checked" />
-                        9600
-                    </label>
-                </li>
-                <li>
-                    <label>
-                        <input name="ota_baud" type="radio" value="6" />
-                        19200
-                    </label>
-                </li>
-            </ul>
+        <li>
+            <label>OTA Baud (bps)
+                <select id="ota_baud" data-bind="value: otaBaud">
+                    <option value="3">4800 bps</option>
+                    <option value="5">9600 bps</option>
+                    <option value="6">19200 bps</option>
+                </select>
+            </label>
         </li>
-    </ul>
-    <ul data-role="listview" data-style="inset">
-
-
         <li>
             <label>Slot time (ms)
-                <input id="slot_time" type="number" value="100" />
+                <input id="slot_time" type="number" data-bind="value: slotTime" />
             </label>
         </li>
         <li>
             <label>TDMA frame time (s)
-                <input id="frame_time" type="number" value="1" />
+                <input id="frame_time" type="number" data-bind="value: frameTime" />
             </label>
         </li>
         <li>
             <label>Frequency (MHz)
-                <input id="frequency" type="number" value="145.25" />
+                <input id="frequency" type="number" data-bind="value: freq" />
             </label>
         </li>
         <li>
             <label>Power output
-                <input id="pwr_output" type="range" max="100" min="0" value="60" />
+                <input id="pwr_output" type="range" max="100" min="0" data-bind="value: pwr" />
             </label>
         </li>
-
+</ul>
+        </li>
 
     </ul>
 
@@ -426,8 +410,26 @@
     </div>
 
     <div data-role="footer" style="background: none; padding: 5px;">
-        <a class="modal-button" data-click="modalViewConfirm" id="modalview-confirm-button" type="button" data-role="button">Yes</a>
-        <a class="modal-button" data-click="modalViewCancel" id="modalview-cancel-button" type="button" data-role="button">No</a>
+        <a class="modal-button" data-click="modalViewConfirm"  type="button" data-role="button">Yes</a>
+        <a class="modal-button" data-click="modalViewCancel"  type="button" data-role="button">No</a>
+    </div>
+
+</div>
+
+<div data-role="modalview" id="modalview-input-mission-key" style="width: 220px;">
+    <div data-role="header">
+        <div data-role="navbar">
+            <span class="modal-header">Input Mission Key</span>
+        </div>
+    </div>
+
+    <div class="modal-content" data-role="contentview" style="padding: 5px;">
+        <input type="password" id="mission_key" />
+    </div>
+
+    <div data-role="footer" style="background: none; padding: 5px;">
+        <a class="modal-button" data-click="modalViewConfirmConnect" type="button" data-role="button">Connect</a>
+        <a class="modal-button" data-click="modalViewCancelConnect" type="button" data-role="button">Cancel</a>
     </div>
 
 </div>
@@ -525,7 +527,7 @@ var maxReconnectAttempts = 3;
 var isFirstResponse = true;
 var isCmdServerBusy = false;
 var win = gui.Window.get();
-
+var mission_key = "";
 function cmdMessage(msg,params) {
     this.msg = msg;
     this.params = params;
@@ -628,26 +630,16 @@ function requestMsg(msg) {
             $('#stop_bits').val(conn_profile.stop_bits);
             $('#parity').val(conn_profile.parity);
             $('#flowcontrol').val(conn_profile.flowcontrol);
-            $('#gps_mode').val(gps_profile.gpsmode);
-            $("#gps_position").kendoMobileSwitch();
-            var switchInstance = $("#gps_position").data("kendoMobileSwitch");
-            if(gps_profile.gpsenabled==true) {
-                //console.log('gps enabled');
-                //$('#gps_position').prop('checked',true);
-                switchInstance.check(true);
-            } else {
-                //console.log('gps disabled');
-                //$('#gps_position').prop('checked',false);
-                switchInstance.check(false);
-            }
+            gps_params.set('gpsMode',gps_profile.gpsmode);
+            gps_params.set('gpsEnabled',gps_profile.gpsenabled);
+            gps_params.set('gpsUpdate',gps_profile.gpsupdate);
+            gps_params.set('gpsReport',gps_profile.gpsreport)
 
-            $('#pos_update_rate').val(gps_profile.gpsupdate);
-            $('#pos_tx_rate').val(gps_profile.gpsreport);
-            $('input[name="ota_baud"][value="' + radio_profile.otabaud + '"]').prop('checked', true);
-            $('#slot_time').val(radio_profile.slottime);
-            $('#frame_time').val(radio_profile.frametime);
-            $('#frequency').val(radio_profile.frequency);
-            $('#pwr_output').val(radio_profile.power);
+            radio_params.set('otaBaud',radio_profile.otabaud);
+            radio_params.set('slotTime',radio_profile.slottime);
+            radio_params.set('frameTime',radio_profile.frametime);
+            radio_params.set('freq',radio_profile.frequency);
+            radio_params.set('pwr',radio_profile.power);
 
             $('#comm_profile option[value='+user_profile.profileId+']').attr('selected', 'selected');
             $("#comm_profile").kendoDropDownList();
@@ -784,7 +776,7 @@ function initApp() {
 
 
     $('#connectBtn').click(function(){
-        connectSerial();
+        $('#modalview-input-mission-key').kendoMobileModalView('open');
     });
 
 }
@@ -888,7 +880,12 @@ function initSerialSettingForm() {
 
 
 }
-
+var gps_params = kendo.observable({
+    gpsMode: 12,
+    gpsEnabled: true,
+    gpsUpdate: 2,
+    gpsReport: 5
+});
 function initGPSSettingForm() {
 
     var body = $("#gps-setting-view");
@@ -904,15 +901,12 @@ function initGPSSettingForm() {
 
 
     $('#gps-setting-save-button').click(function(){
-        var gpsenabled = false;
-        if($('#gps_position').prop('checked')=="checked") {
-            gpsenabled = true;
-        }
+
         var params = '{"profileId":"'+$('#comm_profile option:selected').val()+'"'
-                +',"gpsmode":"'+$('#gps_mode option:selected').val()+'"'
-                +',"gpsupdate":'+$('#pos_update_rate').val()+''
-                +',"gpsreport":'+$('#pos_tx_rate').val()+''
-                +',"gpsenabled":'+gpsenabled+''
+                +',"gpsmode":"'+gps_params.get('gpsMode')+'"'
+                +',"gpsupdate":'+gps_params.get('gpsUpdate')+''
+                +',"gpsreport":'+gps_params.get('gpsReport')+''
+                +',"gpsenabled":'+gps_params.get('gpsEnabled')+''
                 +'}';
 
         var reqMsg = new cmdMessage('update gps profile', params);
@@ -927,6 +921,51 @@ function initGPSSettingForm() {
 
 }
 
+var radio_params = kendo.observable({
+    otaBaud: 5,
+    slotTime: 100,
+    frameTime: 1,
+    freq: 145.125,
+    pwr: 60
+});
+function initRadioSettingForm() {
+
+    var body = $("#radio-setting-view");
+    if (kendo.ui.DropDownList) {
+        $("#ota_baud").kendoDropDownList({
+            // The options are needed only for the desktop demo, remove them for mobile.
+            popup: { appendTo: body },
+            animation: { open: { effects: body.hasClass("km-android") ? "fadeIn" : body.hasClass("km-ios") || body.hasClass("km-wp") ? "slideIn:up" : "slideIn:down" } }
+        });
+
+    }
+
+    if (kendo.ui.Slider) {
+        $("#pwr_output").kendoSlider({ tooltip: { enabled: true } });
+    }
+
+
+    $('#radio-setting-save-button').click(function(){
+
+        var params = '{"profileId":"'+$('#comm_profile option:selected').val()+'"'
+                +',"otabaud":"'+radio_params.get('otaBaud')+'"'
+                +',"slottime":'+radio_params.get('slotTime')+''
+                +',"frametime":'+radio_params.get('frameTime')+''
+                +',"frequency":'+radio_params.get('freq')+''
+                +',"power":'+radio_params.get('pwr')+''
+                +'}';
+
+        var reqMsg = new cmdMessage('update radio profile', params);
+        reqMsg.formatControlMessage();
+        requestMsg(reqMsg);
+
+
+
+    });
+
+
+
+}
 function initAddProfileForm() {
 
     $('#new_profile_name').val('');
@@ -1084,16 +1123,32 @@ function modalViewCancel() {
     //gui.App.quit();
 }
 
+function modalViewConfirmConnect() {
+    $('#modalview-input-mission-key').kendoMobileModalView('close');
+    mission_key = $('#mission_key').val();
+    $('#mission_key').val('');
+    connectSerial();
+}
+
+function modalViewCancelConnect() {
+    $('#modalview-input-mission-key').kendoMobileModalView('close');
+    mission_key = $('#mission_key').val();
+    $('#mission_key').val('');
+    //gui.App.quit();
+}
+
 function connectSerial() {
-    var params = '{"comm_port":"'+$('#comm_port').val()
+    var params = '{"profileId":'+$('#comm_profile option:selected').val()+''
+            +',"comm_port":"'+$('#comm_port').val()
             +'","bit_rates":'+$('#bit_rates').val()
             +',"data_bits":'+$('#databits').val()
             +',"stop_bits":"'+$('#stopbits').val()
             +'","parity":"'+$('#parity').val()
             +'","flowcontrol":"'+$('#flowcontrol').val()
             +'"}';
-    reqMsg =formatControlMessage('connect', params);
-    setTimeout(requestMsg,1000,reqMsg);
+    var reqMsg = new cmdMessage('connect', params);
+    reqMsg.formatControlMessage();
+    requestMsg(reqMsg);
 }
 
 //////////////////////////////////////////////////
@@ -1150,9 +1205,7 @@ $(document).ready(function(){
     setTimeout(requestMsg,1000,reqMsg);
     //console.log(process.mainModule.exports.dirname);
     app = new kendo.mobile.Application(document.body);
-    if (kendo.ui.Slider) {
-        $("#pwr_output").kendoSlider({ tooltip: { enabled: true } });
-    }
+
     $('#connected_time').runner();
 });
 

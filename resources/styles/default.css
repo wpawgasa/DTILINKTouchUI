@@ -152,6 +152,21 @@ h1 {
     height: 1em;
     border-radius: 1em !important;
 }
+
+.km-list .k-slider {
+    margin-top: -1em !important;
+}
+
+.km-widget .k-slider-horizontal .k-slider-selection {
+    top: 0;
+    height: 9px !important;
+}
+
+.km-root .k-slider-track {
+    height: 23px !important;
+}
+
+.k-tooltip { display: block !important; }
 /*
 #content ul {
     list-style: none;
