@@ -30,7 +30,7 @@
             </a>
             &NonBreakingSpace;
 
-            <a id="connectBtn" class="boxbutton" href="#">
+            <a id="connectBtn" class="boxbutton">
                 <img src="../resources/images/connect2.png" width="64" height="64"/>
                 CONNECT
             </a>
@@ -362,21 +362,39 @@
 
 </div>
 
-<div data-role="modalview" id="modalview-connection-error" style="width: 220px;">
+<div data-role="modalview" id="modalview-server-error" style="width: 220px;">
     <div data-role="header">
         <div data-role="navbar">
-            <span class="modal-header">Connection error</span>
+            <span class="modal-header">Server error</span>
         </div>
     </div>
 
     <div class="modal-content" data-role="contentview" style="padding: 5px;">
-        Can not connect to TDL Server
-
+        <p id="server-error"></p>
+        <div id="server-req-data"></div>
     </div>
 
     <div data-role="footer" style="background: none; padding: 5px;">
-        <a class="modal-button" data-click="closeModalViewConnErrAndRetry" id="modalview-conn-retry-button" type="button" data-role="button">Retry</a>
-        <a class="modal-button" data-click="closeModalViewConnErrAndExit" id="modalview-conn-exit-button" type="button" data-role="button">Exit</a>
+        <a class="modal-button" data-click="closeModalViewServerErrAndRetry" type="button" data-role="button">Retry</a>
+        <a class="modal-button" data-click="closeModalViewServerErrAndExit" type="button" data-role="button">Exit</a>
+    </div>
+
+</div>
+<div data-role="modalview" id="modalview-conn-error" style="width: 220px;">
+    <div data-role="header">
+        <div data-role="navbar">
+            <span class="modal-header">Server error</span>
+        </div>
+    </div>
+
+    <div class="modal-content" data-role="contentview" style="padding: 5px;">
+        <p id="conn-error"></p>
+        <div id="conn-req-data"></div>
+    </div>
+
+    <div data-role="footer" style="background: none; padding: 5px;">
+        <a class="modal-button" data-click="closeModalViewConnErrAndRetry" type="button" data-role="button">Retry</a>
+        <a class="modal-button" data-click="closeModalViewConnErrAndExit" type="button" data-role="button">Exit</a>
     </div>
 
 </div>
@@ -526,6 +544,7 @@ var reconnectAttempts = 0;
 var maxReconnectAttempts = 3;
 var isFirstResponse = true;
 var isCmdServerBusy = false;
+
 var win = gui.Window.get();
 var mission_key = "";
 function cmdMessage(msg,params) {
@@ -730,17 +749,47 @@ function requestMsg(msg) {
             $('#modalview-db-error').kendoMobileModalView('open');
         }
 
-        if(obj.msg_name=='response connect' && (obj.msg_err==""||obj.msg_err==null)) {
-            initialize();
+        if(obj.msg_name=='response connect' && (obj.msg_err=="TDLConnection"||obj.msg_err==""||obj.msg_err==null)) {
+            var params = '{"profileId":'+$('#comm_profile option:selected').val()+''
+                    +',"missionkey":"'+mission_key+'"'
+                    +',"gpsprofile":{'
+                    +'"gpsmode":'+gps_params.get('gpsMode')+''
+                    +',"gpsupdate":'+gps_params.get('gpsUpdate')+''
+                    +',"gpsreport":'+gps_params.get('gpsReport')+''
+                    +',"gpsenabled":'+gps_params.get('gpsEnabled')+''
+                    +'}'
+                    +',"radioprofile":{'
+                    +'"otabaud":"'+radio_params.get('otaBaud')+'"'
+                    +',"slottime":'+radio_params.get('slotTime')+''
+                    +',"frametime":'+radio_params.get('frameTime')+''
+                    +',"frequency":'+radio_params.get('freq')+''
+                    +',"power":'+radio_params.get('pwr')+''
+                    +'}'
+                    +'}';
+            var reqMsg = new cmdMessage('setup radio', params);
+            reqMsg.formatControlMessage();
+            requestMsg(reqMsg);
             app.navigate("tabstrip-tacmap","slide:right");
-            
+            initialize();
             $('#connected_profile').text($('#comm_profile option:selected').text());
             $('#connected_time').runner('start');
         } else if(obj.msg_name=='response connect') {
-            console.log("connect err");
-            $('#db-error').text('Cannot connect : '+obj.msg_err);
-            $('#modalview-db-error').kendoMobileModalView('open');
+            var reqMsg = new cmdMessage('update radio profile', obj.msg_params);
+            reqMsg.formatControlMessage();
+            $('#conn-req-data').data(reqMsg);
+            $('#conn-error').text('Cannot connect : '+obj.msg_err);
+            $('#modalview-conn-error').kendoMobileModalView('open');
         }
+        if(obj.msg_name=='response setup' && (obj.msg_err==""||obj.msg_err==null)) {
+            console.log(obj);
+        } else if(obj.msg_name=='response setup') {
+            var reqMsg = new cmdMessage('setup radio', obj.msg_params);
+            reqMsg.formatControlMessage();
+            $('#conn-req-data').data(reqMsg);
+            $('#conn-error').text('Cannot connect : '+obj.msg_err);
+            $('#modalview-conn-error').kendoMobileModalView('open');
+        }
+
     });
 
     // Add a 'close' event handler for the client socket
@@ -750,11 +799,16 @@ function requestMsg(msg) {
 
     client.on('error', function(err) {
         console.log(err);
+        console.log(reconnectAttempts);
         if(reconnectAttempts<=maxReconnectAttempts) {
             reconnectAttempts++;
+            isCmdServerBusy = false;
             setTimeout(requestMsg,200,msg);
         } else if(err.code=='ECONNREFUSED') {
-            $('#modalview-connection-error').kendoMobileModalView('open');
+            isCmdServerBusy = false;
+            reconnectAttempts = 0;
+            $('#server-error').text('Server error : '+err.code);
+            $('#modalview-server-error').kendoMobileModalView('open');
         }
 
     });
@@ -1082,17 +1136,18 @@ function revealApp() {
     $('div.k-loading-mask').remove();
 }
 
-function closeModalViewConnErrAndRetry() {
-    $('#modalview-connection-error').kendoMobileModalView('close');
+function closeModalViewServerErrAndRetry() {
+    $('#modalview-server-error').kendoMobileModalView('close');
 //    var reqStatus =formatControlMessage('request server status', null);
 //    setTimeout(requestMsg,500,reqStatus);
+    reconnectAttempts = 0;
     var reqMsg = new cmdMessage('request server status', null);
     reqMsg.formatControlMessage();
     requestMsg(reqMsg);
 }
 
-function closeModalViewConnErrAndExit() {
-    $('#modalview-connection-error').kendoMobileModalView('close');
+function closeModalViewServerErrAndExit() {
+    $('#modalview-server-error').kendoMobileModalView('close');
     gui.App.quit();
 }
 
@@ -1104,6 +1159,17 @@ function closeModalViewDBErrAndRetry() {
 
 function closeModalViewDBErrAndExit() {
     $('#modalview-db-error').kendoMobileModalView('close');
+    //gui.App.quit();
+}
+
+function closeModalViewConnErrAndRetry() {
+    $('#modalview-conn-error').kendoMobileModalView('close');
+    var msg = $('#conn-req-data').data();
+    setTimeout(requestMsg,200,msg);
+}
+
+function closeModalViewConnErrAndExit() {
+    $('#modalview-conn-error').kendoMobileModalView('close');
     //gui.App.quit();
 }
 
