@@ -383,7 +383,7 @@
 <div data-role="modalview" id="modalview-conn-error" style="width: 220px;">
     <div data-role="header">
         <div data-role="navbar">
-            <span class="modal-header">Server error</span>
+            <span class="modal-header">Connection error</span>
         </div>
     </div>
 
@@ -547,6 +547,7 @@ var isCmdServerBusy = false;
 
 var win = gui.Window.get();
 var mission_key = "";
+var earth;
 function cmdMessage(msg,params) {
     this.msg = msg;
     this.params = params;
@@ -770,11 +771,11 @@ function requestMsg(msg) {
             reqMsg.formatControlMessage();
             requestMsg(reqMsg);
             app.navigate("tabstrip-tacmap","slide:right");
-            initialize();
+
             $('#connected_profile').text($('#comm_profile option:selected').text());
             $('#connected_time').runner('start');
         } else if(obj.msg_name=='response connect') {
-            var reqMsg = new cmdMessage('update radio profile', obj.msg_params);
+            var reqMsg = new cmdMessage('connect', obj.msg_params);
             reqMsg.formatControlMessage();
             $('#conn-req-data').data(reqMsg);
             $('#conn-error').text('Cannot connect : '+obj.msg_err);
@@ -782,12 +783,53 @@ function requestMsg(msg) {
         }
         if(obj.msg_name=='response setup' && (obj.msg_err==""||obj.msg_err==null)) {
             console.log(obj);
+            revealApp();
+            initializeMap();
         } else if(obj.msg_name=='response setup') {
+            revealApp();
             var reqMsg = new cmdMessage('setup radio', obj.msg_params);
             reqMsg.formatControlMessage();
             $('#conn-req-data').data(reqMsg);
             $('#conn-error').text('Cannot connect : '+obj.msg_err);
             $('#modalview-conn-error').kendoMobileModalView('open');
+        }
+
+        if(obj.msg_name=='response own position' && (obj.msg_err==""||obj.msg_err==null)) {
+            console.log(obj);
+            var tracks = obj.tracks;
+            if(tracks.length>0) {
+                var track = tracks[0];
+
+                var kmlString = ''
+                        + '<?xml version="1.0" encoding="UTF-8"?>'
+                        + '<kml xmlns="http://www.opengis.net/kml/2.2">'
+
+                        + '<Document>'
+                        + '  <Camera>'
+                        + '    <longitude>'+track.posLon+'</longitude>'
+                        + '    <latitude>'+track.posLat+'</latitude>'
+                        + '    <altitude>200</altitude>'
+                        + '    <heading>0.0</heading>'
+                        + '    <tilt>0</tilt>'
+                        + '  </Camera>'
+
+                        + '  <Placemark>'
+                        + '    <name>'+track.posName+'</name>'
+                        + '    <Point>'
+                        + '      <coordinates>'+track.posLon+','+track.posLat+',0</coordinates>'
+                        + '    </Point>'
+                        + '  </Placemark>'
+
+                        + '</Document>'
+                        + '</kml>';
+                var kmlObject = earth.parseKml(kmlString);
+                earth.getFeatures().appendChild(kmlObject);
+                if (kmlObject.getAbstractView())
+                    earth.getView().setAbstractView(kmlObject.getAbstractView());
+            }
+
+
+            setTimeout(getOwnPosition,2000,null);
         }
 
     });
@@ -1133,7 +1175,10 @@ function bin2String(array) {
 
 
 function revealApp() {
-    $('div.k-loading-mask').remove();
+    $('div.k-loading-mask').hide();
+}
+function hideApp() {
+    $('div.k-loading-mask').show();
 }
 
 function closeModalViewServerErrAndRetry() {
@@ -1212,18 +1257,27 @@ function connectSerial() {
             +'","parity":"'+$('#parity').val()
             +'","flowcontrol":"'+$('#flowcontrol').val()
             +'"}';
+    hideApp();
     var reqMsg = new cmdMessage('connect', params);
     reqMsg.formatControlMessage();
     requestMsg(reqMsg);
 }
 
+    function getOwnPosition() {
+        var reqMsg = new cmdMessage('request own position', null);
+        reqMsg.formatControlMessage();
+        requestMsg(reqMsg);
+    }
+
 //////////////////////////////////////////////////
 // Google Earth setup
 ////////////////////////////////////////////////
+
      // Called when the plugin loads sucessfully.
     function drawEarth(earth_api) {
-       var earth = earth_api;
+       earth = earth_api;
        earth.getWindow().setVisibility(true);
+       getOwnPosition();
     }
 
     // Called when the plugin cannot load.
@@ -1246,6 +1300,7 @@ function connectSerial() {
       $('#map3d').css('width',win.width-10);
       $('#map3d').css('height',win.height-174);
       google.earth.createInstance('map3d', drawEarth, earthError);
+
     }
 
     // Called when the JavaScript API doesn't load.
@@ -1257,7 +1312,7 @@ function connectSerial() {
     // When the API loads we call the success function which
     // should have access to the full Earth JS API.  The error
     // callback here is called when the JS Earth API never loads.
-    function initialize() {
+    function initializeMap() {
       var loaderOptions = {
         'other_params': 'sensor=false',
         'success': loadSuccessful,
