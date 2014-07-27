@@ -7,11 +7,14 @@
     <link href="../lib/kendoUI/styles/kendo.flat.min.css" rel="stylesheet">
     <link href="../lib/kendoUI/styles/kendo.flat.mobile.min.css" rel="stylesheet">
     <link href="../resources/styles/default.css" rel="stylesheet">
+    <link href="../resources/leaflet/leaflet.css" rel="stylesheet">
     <script src="../lib/kendoUI/js/jquery.min.js"></script>
     <script src="../lib/kendoUI/js/kendo.all.min.js"></script>
     <script src="../js/jquery.runner.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"> </script>
-    <script type="text/javascript" src="../js/earth_async.js"> </script>
+    <script src="../resources/leaflet/leaflet.js"></script>
+    <!--<script type="text/javascript" src="https://www.google.com/jsapi"> </script>
+    <script type="text/javascript" src="../js/earth_async.js"> </script>-->
+
 
 </head>
 <body>
@@ -784,7 +787,7 @@ function requestMsg(msg) {
         if(obj.msg_name=='response setup' && (obj.msg_err==""||obj.msg_err==null)) {
             console.log(obj);
             revealApp();
-            initializeMap();
+            initializeMapv2();
         } else if(obj.msg_name=='response setup') {
             revealApp();
             var reqMsg = new cmdMessage('setup radio', obj.msg_params);
@@ -800,7 +803,7 @@ function requestMsg(msg) {
             if(tracks.length>0) {
                 var track = tracks[0];
 
-                var kmlString = ''
+                /*var kmlString = ''
                         + '<?xml version="1.0" encoding="UTF-8"?>'
                         + '<kml xmlns="http://www.opengis.net/kml/2.2">'
 
@@ -825,7 +828,10 @@ function requestMsg(msg) {
                 var kmlObject = earth.parseKml(kmlString);
                 earth.getFeatures().appendChild(kmlObject);
                 if (kmlObject.getAbstractView())
-                    earth.getView().setAbstractView(kmlObject.getAbstractView());
+                    earth.getView().setAbstractView(kmlObject.getAbstractView());*/
+
+                map.setView([track.posLat,track.posLon],13);
+
             }
 
 
@@ -1320,6 +1326,22 @@ function connectSerial() {
       };
       loadEarthApi(loaderOptions);
     };
+
+var map;
+function initializeMapv2() {
+    $('#map_holder').css('width',win.width-10);
+    $('#map_holder').css('height',win.height-174);
+    $('#map_holder').css('background-color','#FFFFFF');
+    //$('#map_holder').append('<div id="map3d"></div>');
+    //$('#map3d').css('width',win.width-10);
+    //$('#map3d').css('height',win.height-174);
+    map = L.map('map_holder').setView([13.75, 100.466667], 13);
+    L.tileLayer('http://{s}.tiles.mapbox.com/v4/dtitdl.j2e3ifc7/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18
+    }).addTo(map);
+
+};
 $(document).ready(function(){
     var reqMsg = new cmdMessage('request server status', null);
     reqMsg.formatControlMessage();
