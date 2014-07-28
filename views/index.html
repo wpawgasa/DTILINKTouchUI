@@ -830,8 +830,9 @@ function requestMsg(msg) {
                 if (kmlObject.getAbstractView())
                     earth.getView().setAbstractView(kmlObject.getAbstractView());*/
 
-                map.setView([track.posLat,track.posLon],13);
-
+                map.setView([track.posLat,track.posLon],9);
+                var newLatLng = new L.LatLng(track.posLat, track.posLon);
+                selfMarker.setLatLng(newLatLng);
             }
 
 
@@ -1328,6 +1329,9 @@ function connectSerial() {
     };
 
 var map;
+var selfLayer = new L.LayerGroup();
+var friendsLayer = new L.LayerGroup();
+var selfMarker;
 function initializeMapv2() {
     $('#map_holder').css('width',win.width-10);
     $('#map_holder').css('height',win.height-174);
@@ -1336,10 +1340,12 @@ function initializeMapv2() {
     //$('#map3d').css('width',win.width-10);
     //$('#map3d').css('height',win.height-174);
     map = L.map('map_holder').setView([13.75, 100.466667], 13);
-    L.tileLayer('http://{s}.tiles.mapbox.com/v4/dtitdl.j2e3ifc7/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tiles.mapbox.com/v4/dtitdl.j2e3ifc7/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZHRpdGRsIiwiYSI6ImZTajJSdHcifQ.Z3yru99Z5_j1QhsQz4s4Tw', {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
         maxZoom: 18
     }).addTo(map);
+    selfMarker = L.marker(map.getCenter()).addTo(map);
+    setTimeout(getOwnPosition,2000,null);
 
 };
 $(document).ready(function(){
