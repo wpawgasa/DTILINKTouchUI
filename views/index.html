@@ -859,11 +859,11 @@ function requestMsg(msg) {
             for(var i=0;i<members.length;i++) {
                 var member = members[0];
                 var track = member.currPos;
-                var memberMarker = L.marker([track.posLat, track.posLon]).bindPopup(track.posName+' on '+track.posId);
-                markers.push(memberMarker);
+                //var memberMarker = L.marker([track.posLat, track.posLon]).bindPopup(track.posName+' on '+track.posId);
+                markers.push(L.marker([track.posLat, track.posLon]).bindPopup(track.posName+' on '+track.posId));
             }
-            console.log(markers);
-            console.log(membersLayer);
+            //console.log(markers);
+            //console.log(membersLayer);
             if( membersLayer && membersLayer !== "null" && membersLayer !== "undefined" ){
                 map.removeLayer(membersLayer);
             }
@@ -876,6 +876,7 @@ function requestMsg(msg) {
 
     // Add a 'close' event handler for the client socket
     client.on('close', function() {
+        isCmdServerBusy = false;
         console.log('Connection closed');
     });
 
@@ -895,10 +896,12 @@ function requestMsg(msg) {
 
     });
     if(!isCmdServerBusy) {
+        console.log('Send request when server free')
         client.write(msg.reqMsg,'UTF-8');
         client.end();
         isCmdServerBusy = true;
     } else {
+
         setTimeout(requestMsg,200,msg);
     }
 
