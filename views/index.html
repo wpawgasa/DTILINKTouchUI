@@ -857,7 +857,7 @@ function requestMsg(msg) {
 
             var markers = [];
             for(var i=0;i<members.length;i++) {
-                var member = members[0];
+                var member = members[i];
                 var track = member.currPos;
                 //var memberMarker = L.marker([track.posLat, track.posLon]).bindPopup(track.posName+' on '+track.posId);
                 markers.push(L.marker([track.posLat, track.posLon]).bindPopup(track.posName+' on '+track.posId));
