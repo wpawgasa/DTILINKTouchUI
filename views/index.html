@@ -466,10 +466,9 @@
 
     <div data-role="footer">
         <div data-role="tabstrip">
-            <a href="#tabstrip-tacmap" data-icon="contacts">Map
-            </a><a href="#tabstrip-tacmsg" data-icon="history">Messages
-        </a><a href="#tabstrip-tacnews" data-icon="favorites">News
-        </a><a href="#tabstrip-members" data-icon="favorites">Members
+            <a href="#tabstrip-tacmap" data-icon="globe">Map
+            </a><a href="#tabstrip-tacmsg" data-icon="messages">Messages
+        </a><a href="#tabstrip-members" data-icon="contacts">Members
         </a>
         </div>
     </div>
@@ -479,7 +478,7 @@
     <div id="map_holder"></div>
 </div>
 <div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-layout="mobile-tabstrip">
-
+    
 </div>
 <div data-role="view" id="tabstrip-tacnews" data-title="Tactical News" data-layout="mobile-tabstrip">
 
@@ -553,9 +552,11 @@ var mission_key = "";
 var earth;
 var map;
 var selfMarker;
-var littleton = L.marker([13.8, 100.6]).bindPopup('This is Littleton, CO.');
+var markers = [];
+var memberMarkers = [];
+//var littleton = L.marker([13.8, 100.6]).bindPopup('This is Littleton, CO.');
 
-var membersLayer = L.layerGroup([littleton]);
+var membersLayer = null;
 function cmdMessage(msg,params) {
     this.msg = msg;
     this.params = params;
@@ -570,6 +571,21 @@ cmdMessage.prototype = {
         });
     }
 }
+function MarkerObj(id,marker) {
+    this.markerId = id
+    this.marker = marker;
+    
+}
+MarkerObj.prototype = {
+    constructor: MarkerObj,
+    getId: function() {
+        return this.markerId
+    },
+    getMarker: function() {
+        return this.marker
+    }
+}
+
 function requestMsg(msg) {
 
     client = net.connect(9889, 'localhost');
@@ -840,7 +856,7 @@ function requestMsg(msg) {
                 if( selfMarker && selfMarker !== "null" && selfMarker !== "undefined" ){
                     selfMarker.setLatLng(newLatLng);
                 } else {
-                    selfMarker = L.marker(newLatLng).addTo(map);
+                    selfMarker = L.marker(newLatLng,{icon:blueIcon}).addTo(map);
                     map.setView([track.posLat,track.posLon],9);
                 }
 
@@ -855,21 +871,36 @@ function requestMsg(msg) {
             var members = obj.members;
 
 
-            var markers = [];
+            
             for(var i=0;i<members.length;i++) {
                 var member = members[i];
                 var track = member.currPos;
+                var ll = new L.LatLng(track.posLat, track.posLon);
+                var markerExist = false;
+                for(var j=0;j<markers.length;j++) {
+                    var marker = markers[j];
+                    if(marker.getId()==track.posId) {
+                        markerExist = true;
+                        marker.getMarker().setLatLng(ll);
+                    }
+                }
+                if(!markerExist) {
+                    var marker = new MarkerObj(track.posId,L.marker([track.posLat, track.posLon],{icon:greenIcon}).bindPopup(track.posName+' on '+track.posId));
+                    markers.push(marker);
+                    memberMarkers.push(marker.getMarker());
+                }
                 //var memberMarker = L.marker([track.posLat, track.posLon]).bindPopup(track.posName+' on '+track.posId);
-                markers.push(L.marker([track.posLat, track.posLon]).bindPopup(track.posName+' on '+track.posId));
+                //markers.push(L.marker([track.posLat, track.posLon],{icon:greenIcon}).bindPopup(track.posName+' on '+track.posId));
             }
             //console.log(markers);
-            //console.log(membersLayer);
-            if( membersLayer && membersLayer !== "null" && membersLayer !== "undefined" ){
-                map.removeLayer(membersLayer);
-            }
-            membersLayer = L.layerGroup(markers);
+            console.log(memberMarkers);
+            //if( membersLayer && membersLayer !== "null" && membersLayer !== "undefined" ){
+            //    map.removeLayer(membersLayer);
+            //}
+            
+            membersLayer = L.layerGroup(memberMarkers);
             membersLayer.addTo(map);
-            setTimeout(getMembers,2000,null);
+            setTimeout(getMembers,2500,null);
         }
 
     });
@@ -895,14 +926,17 @@ function requestMsg(msg) {
         }
 
     });
-    if(!isCmdServerBusy) {
-        console.log('Send request when server free')
-        client.write(msg.reqMsg,'UTF-8');
-        client.end();
-        isCmdServerBusy = true;
-    } else {
+    if( msg.reqMsg && msg.reqMsg !== "null" && msg.reqMsg !== "undefined" ){
+            
+        if(!isCmdServerBusy) {
+            console.log('Send request when server free');
+            client.write(msg.reqMsg,'UTF-8');
+            client.end();
+            isCmdServerBusy = true;
+        } else {
 
-        setTimeout(requestMsg,200,msg);
+            setTimeout(requestMsg,200,msg);
+        }
     }
 
 
@@ -1370,6 +1404,36 @@ function connectSerial() {
       loadEarthApi(loaderOptions);
     };
 
+var blueIcon = L.icon({
+    iconUrl: '../resources/images/free-map-marker-icon-blue.png',
+    iconSize: [48, 48],
+    iconAnchor: [24, 48],
+    popupAnchor: [0, -76],
+    shadowUrl: '../resources/images/marker-shadow.png',
+    shadowSize: [48, 48],
+    shadowAnchor: [22, 94],
+    shadowSize: [68, 95]
+});
+var greenIcon = L.icon({
+    iconUrl: '../resources/images/free-map-marker-icon-green.png',
+    iconSize: [48, 48],
+    iconAnchor: [24, 48],
+    popupAnchor: [0, -48],
+    shadowUrl: '../resources/images/marker-shadow.png',
+    shadowSize: [48, 48],
+    shadowAnchor: [22, 94],
+    shadowSize: [68, 95]
+});
+var redIcon = L.icon({
+    iconUrl: '../resources/images/free-map-marker-icon-red.png',
+    iconSize: [48, 48],
+    iconAnchor: [24, 48],
+    popupAnchor: [-3, -48],
+    shadowUrl: '../resources/images/marker-shadow.png',
+    shadowSize: [48, 48],
+    shadowAnchor: [22, 94],
+    shadowSize: [68, 95]
+});
 
 function initializeMapv2() {
     $('#map_holder').css('width',win.width-10);
@@ -1384,7 +1448,8 @@ function initializeMapv2() {
         maxZoom: 18
     }).addTo(map);
     //selfMarker = L.marker(map.getCenter()).addTo(map);
-
+    membersLayer = L.layerGroup(memberMarkers);
+    membersLayer.addTo(map);
     setTimeout(getOwnPosition,2000,null);
     setTimeout(getMembers,2500,null);
 

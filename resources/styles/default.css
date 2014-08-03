@@ -142,6 +142,13 @@ h1 {
 
 }
 
+.km-messages:after,
+.km-messages:before {
+    content: '\e093';
+
+
+}
+
 #left-drawer {
     background-image: url('../images/patterns/greywashwall/grey_wash_wall/grey_wash_wall.png');
     background-repeat: repeat;
