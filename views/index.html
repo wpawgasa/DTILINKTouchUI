@@ -882,6 +882,11 @@ function requestMsg(msg) {
                     if(marker.getId()==track.posId) {
                         markerExist = true;
                         marker.getMarker().setLatLng(ll);
+                        if(member.status) {
+                            marker.getMarker().setIcon(greenIcon);
+                        } else {
+                            marker.getMarker().setIcon(darkIcon);
+                        }
                     }
                 }
                 if(!markerExist) {
