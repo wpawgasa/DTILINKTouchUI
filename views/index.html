@@ -885,7 +885,12 @@ function requestMsg(msg) {
                     }
                 }
                 if(!markerExist) {
-                    var marker = new MarkerObj(track.posId,L.marker([track.posLat, track.posLon],{icon:greenIcon}).bindPopup(track.posName+' on '+track.posId));
+                    if(member.status) {
+                        var marker = new MarkerObj(track.posId,L.marker([track.posLat, track.posLon],{icon:greenIcon}).bindPopup(track.posName+' on '+track.posId));
+                    } else {
+                        var marker = new MarkerObj(track.posId,L.marker([track.posLat, track.posLon],{icon:darkIcon}).bindPopup(track.posName+' on '+track.posId));
+                    }
+
                     markers.push(marker);
                     memberMarkers.push(marker.getMarker());
                 }
@@ -1426,6 +1431,16 @@ var greenIcon = L.icon({
 });
 var redIcon = L.icon({
     iconUrl: '../resources/images/free-map-marker-icon-red.png',
+    iconSize: [48, 48],
+    iconAnchor: [24, 48],
+    popupAnchor: [-3, -48],
+    shadowUrl: '../resources/images/marker-shadow.png',
+    shadowSize: [48, 48],
+    shadowAnchor: [22, 94],
+    shadowSize: [68, 95]
+});
+var darkIcon = L.icon({
+    iconUrl: '../resources/images/free-map-marker-icon-dark.png',
     iconSize: [48, 48],
     iconAnchor: [24, 48],
     popupAnchor: [-3, -48],
