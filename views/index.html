@@ -864,6 +864,8 @@ function requestMsg(msg) {
 
 
             setTimeout(getOwnPosition,2000,null);
+        } else if(obj.msg_name=='response own position') {
+            setTimeout(getOwnPosition,2000,null);
         }
 
         if(obj.msg_name=='response members' && (obj.msg_err==""||obj.msg_err==null)) {
@@ -910,7 +912,9 @@ function requestMsg(msg) {
             
             membersLayer = L.layerGroup(memberMarkers);
             membersLayer.addTo(map);
-            setTimeout(getMembers,2500,null);
+            setTimeout(getMembers,3000,null);
+        } else if(obj.msg_name=='response members') {
+            setTimeout(getMembers,3000,null);
         }
 
     });
