@@ -477,14 +477,12 @@
 <div data-role="view" id="tabstrip-tacmap" data-title="Tactical Map" data-layout="mobile-tabstrip">
     <div id="map_holder"></div>
 </div>
-<div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-layout="mobile-tabstrip">
+<div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-init="" data-layout="mobile-tabstrip">
     
 </div>
-<div data-role="view" id="tabstrip-tacnews" data-title="Tactical News" data-layout="mobile-tabstrip">
 
-</div>
-<div data-role="view" id="tabstrip-members" data-title="Members" data-layout="mobile-tabstrip">
-
+<div data-role="view" id="tabstrip-members" data-title="Members" data-init="initMemberList" data-layout="mobile-tabstrip">
+    <ul id="members-listview"></ul>
 </div>
 
 <div data-role="drawer" id="left-drawer" data-title="Config" data-swipe-to-open="false" data-position="left">
@@ -537,6 +535,17 @@
         <div class="k-loading-color"></div>
     </div>
 </div>
+<script type="text/x-kendo-tmpl" id="memberlist-template">
+    <div class="member-item">
+        # if(status){#
+        <img class="status-icon" src="../resources/images/free-map-marker-icon-green.png" width="48" />
+         #} else {#
+         <img class="status-icon" src="../resources/images/free-map-marker-icon-dark.png" width="48" />
+         #}#
+        <h3>#:profileName# on #:radioId#</h3>
+        <p>Last update: #:updateTime#</p>
+    </div>
+</script>
 <script>
 var gui = require('nw.gui');
 var net = require('net');
@@ -554,6 +563,7 @@ var map;
 var selfMarker;
 var markers = [];
 var memberMarkers = [];
+var members = [];
 //var littleton = L.marker([13.8, 100.6]).bindPopup('This is Littleton, CO.');
 
 var membersLayer = null;
@@ -884,9 +894,9 @@ function requestMsg(msg) {
 
         if(obj.msg_name=='response members' && (obj.msg_err==""||obj.msg_err==null)) {
             console.log(obj);
-            var members = obj.members;
+            members = obj.members;
 
-
+            refreshMemberList();
             
             for(var i=0;i<members.length;i++) {
                 var member = members[i];
@@ -1391,6 +1401,24 @@ function connectSerial() {
         //requestMsg(reqMsg);
     }
 
+    function initMemberList() {
+        var membersDataSource = new kendo.data.DataSource({data: members});
+        $("#members-listview").kendoMobileListView({
+            dataSource: membersDataSource,
+            pullToRefresh: true,
+            template: $("#memberlist-template").text(),
+            pullParameters: function(item){
+
+            }
+        });
+    }
+
+function refreshMemberList() {
+    if ($("#members-listview").data("kendoMobileListView") && $("#members-listview").data("kendoMobileListView") != "null" && $("#members-listview").data("kendoMobileListView") != "undefined") {
+
+        $("#members-listview").data("kendoMobileListView").dataSource.data(members);
+    }
+}
 //////////////////////////////////////////////////
 // Google Earth setup
 ////////////////////////////////////////////////
