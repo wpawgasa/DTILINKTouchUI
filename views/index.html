@@ -805,6 +805,7 @@ function requestMsg(msg) {
             $('#conn-error').text('Cannot connect : '+obj.msg_err);
             $('#modalview-conn-error').kendoMobileModalView('open');
         }
+
         if(obj.msg_name=='response setup' && (obj.msg_err==""||obj.msg_err==null)) {
             console.log(obj);
             revealApp();
