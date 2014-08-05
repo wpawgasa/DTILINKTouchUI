@@ -546,7 +546,7 @@ var reconnectAttempts = 0;
 var maxReconnectAttempts = 3;
 var isFirstResponse = true;
 var isCmdServerBusy = false;
-
+var reqStack = [];
 var win = gui.Window.get();
 var mission_key = "";
 var earth;
@@ -586,6 +586,14 @@ MarkerObj.prototype = {
     }
 }
 
+function getReqMsg() {
+    if(reqStack.length>0&&!isCmdServerBusy) {
+        var msg = reqStack.pop();
+        requestMsg(msg);
+    }
+    setTimeout(getReqMsg,500,null);
+}
+
 function requestMsg(msg) {
 
     client = net.connect(9889, 'localhost');
@@ -607,7 +615,8 @@ function requestMsg(msg) {
                 revealApp();
                 var reqMsg = new cmdMessage('get profiles', null);
                 reqMsg.formatControlMessage();
-                requestMsg(reqMsg);
+                reqStack.push(reqMsg);
+                //requestMsg(reqMsg);
 
 
 
@@ -701,7 +710,8 @@ function requestMsg(msg) {
                     +'}';
             var reqMsg = new cmdMessage('get profiles', params);
             reqMsg.formatControlMessage();
-            requestMsg(reqMsg);
+            reqStack.push(reqMsg);
+            //requestMsg(reqMsg);
             app.navigate('#:back');
         } else if(obj.msg_name=='response add profile') {
             var reqMsg = new cmdMessage('add new profile', obj.msg_params);
@@ -716,7 +726,8 @@ function requestMsg(msg) {
                     +'}';
             var reqMsg = new cmdMessage('get profiles', params);
             reqMsg.formatControlMessage();
-            requestMsg(reqMsg);
+            reqStack.push(reqMsg);
+            //requestMsg(reqMsg);
             app.navigate('#:back');
         } else if(obj.msg_name=='response update profile') {
             var reqMsg = new cmdMessage('update profile', obj.msg_params);
@@ -731,7 +742,8 @@ function requestMsg(msg) {
                     +'}';
             var reqMsg = new cmdMessage('get profiles', null);
             reqMsg.formatControlMessage();
-            requestMsg(reqMsg);
+            reqStack.push(reqMsg);
+            //requestMsg(reqMsg);
 
         } else if(obj.msg_name=='response delete profile') {
             var reqMsg = new cmdMessage('delete profile', obj.msg_params);
@@ -793,7 +805,8 @@ function requestMsg(msg) {
                     +'}';
             var reqMsg = new cmdMessage('setup radio', params);
             reqMsg.formatControlMessage();
-            requestMsg(reqMsg);
+            reqStack.push(reqMsg);
+            //requestMsg(reqMsg);
             app.navigate("tabstrip-tacmap","slide:right");
 
             $('#connected_profile').text($('#comm_profile option:selected').text());
@@ -931,10 +944,10 @@ function requestMsg(msg) {
         console.log(reconnectAttempts);
         if(reconnectAttempts<=maxReconnectAttempts) {
             reconnectAttempts++;
-            isCmdServerBusy = false;
+            //isCmdServerBusy = false;
             setTimeout(requestMsg,200,msg);
         } else if(err.code=='ECONNREFUSED') {
-            isCmdServerBusy = false;
+            //isCmdServerBusy = false;
             reconnectAttempts = 0;
             $('#server-error').text('Server error : '+err.code);
             $('#modalview-server-error').kendoMobileModalView('open');
@@ -943,15 +956,15 @@ function requestMsg(msg) {
     });
     if( msg.reqMsg && msg.reqMsg !== "null" && msg.reqMsg !== "undefined" ){
             
-        if(!isCmdServerBusy) {
+        //if(!isCmdServerBusy) {
             console.log('Send request when server free');
             client.write(msg.reqMsg,'UTF-8');
             client.end();
             isCmdServerBusy = true;
-        } else {
+        //} else {
 
-            setTimeout(requestMsg,200,msg);
-        }
+        //    setTimeout(requestMsg,200,msg);
+        //}
     }
 
 
@@ -1059,7 +1072,8 @@ function initSerialSettingForm() {
 
             var reqMsg = new cmdMessage('update serial profile', params);
             reqMsg.formatControlMessage();
-            requestMsg(reqMsg);
+            reqStack.push(reqMsg);
+            //requestMsg(reqMsg);
 
 
 
@@ -1099,7 +1113,8 @@ function initGPSSettingForm() {
 
         var reqMsg = new cmdMessage('update gps profile', params);
         reqMsg.formatControlMessage();
-        requestMsg(reqMsg);
+        reqStack.push(reqMsg);
+        //requestMsg(reqMsg);
 
 
 
@@ -1145,7 +1160,8 @@ function initRadioSettingForm() {
 
         var reqMsg = new cmdMessage('update radio profile', params);
         reqMsg.formatControlMessage();
-        requestMsg(reqMsg);
+        reqStack.push(reqMsg);
+        //requestMsg(reqMsg);
 
 
 
@@ -1169,7 +1185,8 @@ function initAddProfileForm() {
 
             var reqMsg = new cmdMessage('add new profile', params);
             reqMsg.formatControlMessage();
-            requestMsg(reqMsg);
+            reqStack.push(reqMsg);
+            //requestMsg(reqMsg);
         }
 
 
@@ -1198,7 +1215,8 @@ function initEditProfileForm() {
 
             var reqMsg = new cmdMessage('update profile', params);
             reqMsg.formatControlMessage();
-            requestMsg(reqMsg);
+            reqStack.push(reqMsg);
+            //requestMsg(reqMsg);
         }
 
 
@@ -1231,12 +1249,14 @@ function getProfile(id) {
 
     var reqMsg = new cmdMessage('get profile', '{"profileId":'+id+'}');
     reqMsg.formatControlMessage();
-    requestMsg(reqMsg);
+    reqStack.push(reqMsg);
+    //requestMsg(reqMsg);
 }
 function getProfiles() {
     var reqMsg = new cmdMessage('get profiles', null);
     reqMsg.formatControlMessage();
-    requestMsg(reqMsg);
+    reqStack.push(reqMsg);
+    //requestMsg(reqMsg);
 }
 function bin2String(array) {
 
@@ -1280,7 +1300,8 @@ function closeModalViewServerErrAndRetry() {
     reconnectAttempts = 0;
     var reqMsg = new cmdMessage('request server status', null);
     reqMsg.formatControlMessage();
-    requestMsg(reqMsg);
+    reqStack.push(reqMsg);
+    //requestMsg(reqMsg);
 }
 
 function closeModalViewServerErrAndExit() {
@@ -1352,19 +1373,22 @@ function connectSerial() {
     hideApp();
     var reqMsg = new cmdMessage('connect', params);
     reqMsg.formatControlMessage();
-    requestMsg(reqMsg);
+    reqStack.push(reqMsg);
+    //requestMsg(reqMsg);
 }
 
     function getOwnPosition() {
         var reqMsg = new cmdMessage('request own position', null);
         reqMsg.formatControlMessage();
-        requestMsg(reqMsg);
+        reqStack.push(reqMsg);
+        //requestMsg(reqMsg);
     }
 
     function getMembers() {
         var reqMsg = new cmdMessage('request members', null);
         reqMsg.formatControlMessage();
-        requestMsg(reqMsg);
+        reqStack.push(reqMsg);
+        //requestMsg(reqMsg);
     }
 
 //////////////////////////////////////////////////
@@ -1482,7 +1506,9 @@ function initializeMapv2() {
 $(document).ready(function(){
     var reqMsg = new cmdMessage('request server status', null);
     reqMsg.formatControlMessage();
-    setTimeout(requestMsg,1000,reqMsg);
+    reqStack.push(reqMsg);
+    //requestMsg(reqMsg);
+    setTimeout(getReqMsg,1000,null);
     //console.log(process.mainModule.exports.dirname);
     app = new kendo.mobile.Application(document.body);
 
