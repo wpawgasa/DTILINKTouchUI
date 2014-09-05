@@ -479,9 +479,7 @@
 </div>
 <div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-init="" data-layout="mobile-tabstrip">
     <ul id="message-listview"></ul>
-    <footer data-role="footer">
-        <div data-role="navbar"></div>
-    </footer>
+
 </div>
 
 <div data-role="view" id="tabstrip-members" data-title="Members" data-init="initMemberList" data-layout="mobile-tabstrip">
@@ -549,6 +547,13 @@
         <p>Last update: #:updateTime#</p>
     </div>
 </script>
+<script type="text/x-kendo-tmpl" id="tacMsglist-template">
+    <div class="tacmsg-item">
+
+        <h3>#:profileName# on #:radioId#</h3>
+        <p>Message: #:tacMessage#</p>
+    </div>
+</script>
 <script>
 var gui = require('nw.gui');
 var net = require('net');
@@ -567,6 +572,7 @@ var selfMarker;
 var markers = [];
 var memberMarkers = [];
 var members = [];
+var tacMessages = [];
 //var littleton = L.marker([13.8, 100.6]).bindPopup('This is Littleton, CO.');
 
 var membersLayer = null;
@@ -939,6 +945,19 @@ function requestMsg(msg) {
             
             membersLayer = L.layerGroup(memberMarkers);
             membersLayer.addTo(map);
+            setTimeout(getMembers,3000,null);
+        } else if(obj.msg_name=='response members') {
+            setTimeout(getMembers,3000,null);
+        }
+
+        if(obj.msg_name=='response tac-messages' && (obj.msg_err==""||obj.msg_err==null)) {
+            console.log(obj);
+            tacMessages = obj.messages;
+
+            refreshTacMessageList();
+
+
+
             setTimeout(getMembers,3000,null);
         } else if(obj.msg_name=='response members') {
             setTimeout(getMembers,3000,null);
@@ -1404,6 +1423,13 @@ function connectSerial() {
         //requestMsg(reqMsg);
     }
 
+    function getTacMessages() {
+        var reqMsg = new cmdMessage('request tac-messages', null);
+        reqMsg.formatControlMessage();
+        reqStack.push(reqMsg);
+        //requestMsg(reqMsg);
+    }
+
     function initMemberList() {
         var membersDataSource = new kendo.data.DataSource({data: members});
         $("#members-listview").kendoMobileListView({
@@ -1416,10 +1442,29 @@ function connectSerial() {
         });
     }
 
+function initTacMessageist() {
+    var tacMsgDataSource = new kendo.data.DataSource({data: tacMessages});
+    $("#members-listview").kendoMobileListView({
+        dataSource: membersDataSource,
+        pullToRefresh: true,
+        template: $("#memberlist-template").text(),
+        pullParameters: function(item){
+
+        }
+    });
+}
+
 function refreshMemberList() {
     if ($("#members-listview").data("kendoMobileListView") && $("#members-listview").data("kendoMobileListView") != "null" && $("#members-listview").data("kendoMobileListView") != "undefined") {
 
         $("#members-listview").data("kendoMobileListView").dataSource.data(members);
+    }
+}
+
+function refreshTacMessageList() {
+    if ($("#message-listview").data("kendoMobileListView") && $("#message-listview").data("kendoMobileListView") != "null" && $("#message-listview").data("kendoMobileListView") != "undefined") {
+
+        $("#message-listview").data("kendoMobileListView").dataSource.data();
     }
 }
 //////////////////////////////////////////////////
@@ -1532,6 +1577,7 @@ function initializeMapv2() {
     membersLayer.addTo(map);
     setTimeout(getOwnPosition,2000,null);
     setTimeout(getMembers,2500,null);
+    setTimeout(getTacMessages,3000,null);
 
 };
 $(document).ready(function(){
