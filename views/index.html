@@ -478,7 +478,13 @@
     <div id="map_holder"></div>
 </div>
 <div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-init="" data-layout="mobile-tabstrip">
-    <ul id="message-listview"></ul>
+    <ul id="message-listview">
+
+    </ul>
+    <footer data-role="footer">
+        <div id="message_toolbar"></div>
+    </footer>
+
 
 </div>
 
@@ -547,7 +553,7 @@
         <p>Last update: #:updateTime#</p>
     </div>
 </script>
-<script type="text/x-kendo-tmpl" id="tacMsglist-template">
+<script type="text/x-kendo-tmpl" id="messagelist-template">
     <div class="tacmsg-item">
 
         <h3>#:profileName# on #:radioId#</h3>
@@ -1443,14 +1449,20 @@ function connectSerial() {
     }
 
 function initTacMessageist() {
-    var tacMsgDataSource = new kendo.data.DataSource({data: tacMessages});
-    $("#members-listview").kendoMobileListView({
-        dataSource: membersDataSource,
+    var messageDataSource = new kendo.data.DataSource({data: tacMessages});
+    $("#message-listview").kendoMobileListView({
+        dataSource: messageDataSource,
         pullToRefresh: true,
-        template: $("#memberlist-template").text(),
+        template: $("#messagelist-template").text(),
         pullParameters: function(item){
 
         }
+    });
+    $("#message_toolbar").kendoToolBar({
+        resizable: false,
+        items: [
+            { type: "button", text: "MyButton" }
+        ]
     });
 }
 
