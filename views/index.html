@@ -477,7 +477,7 @@
 <div data-role="view" id="tabstrip-tacmap" data-title="Tactical Map" data-layout="mobile-tabstrip">
     <div id="map_holder"></div>
 </div>
-<div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-init="" data-layout="mobile-tabstrip">
+<div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-init="initTacMessageList" data-layout="mobile-tabstrip">
     <ul id="message-listview">
 
     </ul>
@@ -1448,7 +1448,7 @@ function connectSerial() {
         });
     }
 
-function initTacMessageist() {
+function initTacMessageList() {
     var messageDataSource = new kendo.data.DataSource({data: tacMessages});
     $("#message-listview").kendoMobileListView({
         dataSource: messageDataSource,
