@@ -10,7 +10,7 @@
     "height": 600,
     "min_width": 800,
     "min_height": 600,
-    "toolbar": false,
+    "toolbar": true,
      "kiosk" : true,
       "frame" : true
   },
