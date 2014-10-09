@@ -1460,7 +1460,9 @@ function initTacMessageList() {
     $("#message_toolbar").kendoToolBar({
         resizable: false,
         items: [
-            { type: "button", text: "MyButton" }
+            { template: "<label>Message:</label><input id='msg_to_send' style='width: 150px;' type='text' />" },
+            { type: "separator" },
+            { type: "button", text: "Send", id: 'send_msg_btn' }
         ]
     });
 }
@@ -1573,7 +1575,7 @@ var darkIcon = L.icon({
 
 function initializeMapv2() {
     $('#map_holder').css('width',win.width-10);
-    $('#map_holder').css('height',win.height-174);
+    $('#map_holder').css('height',win.height-154);
     $('#map_holder').css('background-color','#FFFFFF');
     //$('#map_holder').append('<div id="map3d"></div>');
     //$('#map3d').css('width',win.width-10);
