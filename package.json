@@ -6,12 +6,12 @@
   "single-instance": true,
   "window": {
     "title": "TDLTouchUI",
-    "width": 850,
-    "height": 620,
-    "min_width": 850,
-    "min_height": 620,
+    "width": 960,
+    "height": 720,
+    "min_width": 960,
+    "min_height": 720,
     "toolbar": true,
-     "kiosk" : true,
+     "kiosk" : false,
       "frame" : true
   },
   "webkit" : {
