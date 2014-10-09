@@ -3,13 +3,13 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>TDL Touch UI</title>
-    <link href="../lib/kendoUI/styles/kendo.common.min.css" rel="stylesheet">
-    <link href="../lib/kendoUI/styles/kendo.flat.min.css" rel="stylesheet">
-    <link href="../lib/kendoUI/styles/kendo.flat.mobile.min.css" rel="stylesheet">
+    <link href="../lib/KendoPro/styles/kendo.common.min.css" rel="stylesheet">
+    <link href="../lib/KendoPro/styles/kendo.flat.min.css" rel="stylesheet">
+    <link href="../lib/KendoPro/styles/kendo.flat.mobile.min.css" rel="stylesheet">
     <link href="../resources/styles/default.css" rel="stylesheet">
     <link href="../resources/leaflet/leaflet.css" rel="stylesheet">
-    <script src="../lib/kendoUI/js/jquery.min.js"></script>
-    <script src="../lib/kendoUI/js/kendo.all.min.js"></script>
+    <script src="../lib/KendoPro/js/jquery.min.js"></script>
+    <script src="../lib/KendoPro/js/kendo.all.min.js"></script>
     <script src="../js/jquery.runner.js"></script>
     <script src="../resources/leaflet/leaflet.js"></script>
     <!--<script type="text/javascript" src="https://www.google.com/jsapi"> </script>
@@ -482,7 +482,22 @@
 
     </ul>
     <div id="message_toolbar"></div>
-
+    <ul id="message_panelbar">
+        <li>Item 1
+            <ul>
+                <li>Sub Item 1</li>
+                <li>Sub Item 2</li>
+                <li>Sub Item 3</li>
+            </ul>
+        </li>
+        <li>Item 2
+            <ul>
+                <li>Sub Item 1</li>
+                <li>Sub Item 2</li>
+                <li>Sub Item 3</li>
+            </ul>
+        </li>
+    </ul>
 
 
 </div>
@@ -1457,7 +1472,12 @@ function initTacMessageList() {
 
         }
     });
-    $("#message_toolbar").html('xxxx');
+    $("#message_toolbar").kendoToolBar({
+        resizable: false,
+        items: [
+            { type: "button", text: "MyButton" }
+        ]
+    });
 }
 
 function refreshMemberList() {
