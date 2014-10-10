@@ -628,7 +628,7 @@ function requestMsg(msg) {
         //console.log(data);
         var retStr = bin2String(data);
         var obj = JSON.parse(retStr);
-        console.log(obj);
+        //console.log(obj);
 
         client.destroy();
         reconnectAttempts = 0;
@@ -688,7 +688,7 @@ function requestMsg(msg) {
         }
 
         if(obj.msg_name=='response profile' && (obj.msg_err==""||obj.msg_err==null)) {
-            console.log("no err");
+            //console.log("no err");
 
             var user_profiles = obj.userprofiles;
 
@@ -721,7 +721,7 @@ function requestMsg(msg) {
             $('#comm_profile option[value='+user_profile.profileId+']').attr('selected', 'selected');
             $("#comm_profile").kendoDropDownList();
         } else if(obj.msg_name=='response profile') {
-            console.log("err");
+            //console.log("err");
             var reqMsg = new cmdMessage('get profile', obj.msg_params);
             reqMsg.formatControlMessage();
             $('#req-data').data(reqMsg);
@@ -844,7 +844,7 @@ function requestMsg(msg) {
         }
 
         if(obj.msg_name=='response setup' && (obj.msg_err==""||obj.msg_err==null)) {
-            console.log(obj);
+            //console.log(obj);
             revealApp();
             initializeMapv2();
         } else if(obj.msg_name=='response setup') {
@@ -857,7 +857,7 @@ function requestMsg(msg) {
         }
 
         if(obj.msg_name=='response own position' && (obj.msg_err==""||obj.msg_err==null)) {
-            console.log(obj);
+            //console.log(obj);
             var tracks = obj.tracks;
             if(tracks.length>0) {
                 var track = tracks[0];
@@ -907,7 +907,7 @@ function requestMsg(msg) {
         }
 
         if(obj.msg_name=='response members' && (obj.msg_err==""||obj.msg_err==null)) {
-            console.log(obj);
+            //console.log(obj);
             members = obj.members;
 
             refreshMemberList();
@@ -943,7 +943,7 @@ function requestMsg(msg) {
                 //markers.push(L.marker([track.posLat, track.posLon],{icon:greenIcon}).bindPopup(track.posName+' on '+track.posId));
             }
             //console.log(markers);
-            console.log(memberMarkers);
+            //console.log(memberMarkers);
             //if( membersLayer && membersLayer !== "null" && membersLayer !== "undefined" ){
             //    map.removeLayer(membersLayer);
             //}
@@ -956,7 +956,7 @@ function requestMsg(msg) {
         }
 
         if(obj.msg_name=='response tac-messages' && (obj.msg_err==""||obj.msg_err==null)) {
-            console.log(obj);
+            //console.log(obj);
             tacMessages = obj.messages;
 
             refreshTacMessageList();
@@ -977,8 +977,8 @@ function requestMsg(msg) {
     });
 
     client.on('error', function(err) {
-        console.log(err);
-        console.log(reconnectAttempts);
+        //console.log(err);
+        //console.log(reconnectAttempts);
         if(reconnectAttempts<=maxReconnectAttempts) {
             reconnectAttempts++;
             //isCmdServerBusy = false;
@@ -994,7 +994,7 @@ function requestMsg(msg) {
     if( msg.reqMsg && msg.reqMsg !== "null" && msg.reqMsg !== "undefined" ){
             
         //if(!isCmdServerBusy) {
-            console.log('Send request when server free');
+            //console.log('Send request when server free');
             client.write(msg.reqMsg,'UTF-8');
             client.end();
             isCmdServerBusy = true;
@@ -1264,7 +1264,7 @@ function initEditProfileForm() {
 
 function changeProfile() {
 
-    console.log($('#comm_profile option:selected').val());
+    //console.log($('#comm_profile option:selected').val());
     if($('#comm_profile option:selected').val()!=0) {
         getProfile($('#comm_profile option:selected').val());
     } else {
@@ -1308,7 +1308,7 @@ function bin2String(array) {
         }
 
     }
-    console.log(result);
+    //console.log(result);
     return result;
 }
 //function formatControlMessage(cmsg,params) {
@@ -1460,9 +1460,15 @@ function initTacMessageList() {
     $("#message_toolbar").kendoToolBar({
         resizable: false,
         items: [
-            { template: "<label>Message:</label><input id='msg_to_send' style='width: 400px;' type='text' />" },
+            { template: "<label>Message:</label><input id='msg_to_send' style='width: 600px;' type='text' />" },
             { type: "separator" },
-            { type: "button", text: "Send", id: 'send_msg_btn' }
+            { type: "button",
+              text: "Send",
+              id: 'send_msg_btn',
+              click: function(e) {
+                console.log($("#msg_to_send").val());
+              }
+            }
         ]
     });
 }
