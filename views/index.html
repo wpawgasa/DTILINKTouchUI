@@ -1467,6 +1467,14 @@ function initTacMessageList() {
               id: 'send_msg_btn',
               click: function(e) {
                 console.log($("#msg_to_send").val());
+
+                  var params = '{"tac_message_type":1,"tac_message":"'+$('#msg_to_send').val()+'"'
+                          +'}';
+
+                  var reqMsg = new cmdMessage('send broadcast tac-messages', params);
+                  reqMsg.formatControlMessage();
+                  reqStack.push(reqMsg);
+
               }
             }
         ]
