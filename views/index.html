@@ -479,7 +479,13 @@
 </div>
 <div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-init="initTacMessageList" data-layout="mobile-tabstrip">
     <ul id="message-listview">
-
+        <div role="tooltip" class="k-widget k-tooltip k-tooltip-closable k-popup k-group k-reset k-state-border-up" data-role="popup" id="target_tt_active" style="display: block; opacity: 1; position: absolute;">
+            <div class="k-tooltip-button">
+                <a href="#" class="k-icon k-i-close">close</a>
+            </div>
+            <div class="k-tooltip-content">Tooltip content</div>
+            <div class="k-callout k-callout-w" style="top: 9.5px;"></div>
+        </div>
     </ul>
     <div id="message_toolbar"></div>
 
