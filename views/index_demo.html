@@ -525,6 +525,7 @@
             <div id="map_holder"></div>
         </div>
         <div data-role="view" id="tabstrip-tacmsg" data-title="Tactical Messages" data-init="initTacMessageList" data-layout="mobile-tabstrip">
+            <div id="message_toolbar"></div>
             <ul id="message-listview">
                 <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbn
                 </li>
@@ -533,7 +534,7 @@
                 <li>cccc
                 </li>
             </ul>
-            <div id="message_toolbar"></div>
+            
 
 
 
@@ -595,8 +596,8 @@
         <script type="text/x-kendo-tmpl" id="messagelist-template">
             <div class="tacmsg-item">
 
-            <h3>#:profileName# on #:radioId#</h3>
-            <p>Message: #:tacMessage#</p>
+            <h3>#:senderName# on #:senderId#</h3>
+            <p>Message: #:tac_message#</p>
             </div>
         </script>
         <script>
@@ -998,15 +999,15 @@
 
                     if (obj.msg_name == 'response tac-messages' && (obj.msg_err == "" || obj.msg_err == null)) {
                         //console.log(obj);
-                        tacMessages = obj.messages;
+                        tacMessages = obj.message;
 
                         refreshTacMessageList();
 
 
 
-                        setTimeout(getMembers, 3000, null);
-                    } else if (obj.msg_name == 'response members') {
-                        setTimeout(getMembers, 3000, null);
+                        setTimeout(getTacMessages, 3000, null);
+                    } else if (obj.msg_name == 'response tac-messages') {
+                        setTimeout(getTacMessages, 3000, null);
                     }
 
                 });
@@ -1536,7 +1537,7 @@
             function refreshTacMessageList() {
                 if ($("#message-listview").data("kendoMobileListView") && $("#message-listview").data("kendoMobileListView") != "null" && $("#message-listview").data("kendoMobileListView") != "undefined") {
 
-                    $("#message-listview").data("kendoMobileListView").dataSource.data();
+                    $("#message-listview").data("kendoMobileListView").dataSource.data(tacMessages);
                 }
             }
             //////////////////////////////////////////////////
