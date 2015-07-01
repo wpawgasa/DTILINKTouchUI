@@ -629,6 +629,7 @@
             cmdMessage.prototype = {
                 constructor: cmdMessage,
                 formatControlMessage: function () {
+                    //this.params = JSON.stringify(this.params);
                     this.reqMsg = JSON.stringify({
                         msg_name: this.msg,
                         msg_params: this.params
@@ -1026,9 +1027,6 @@
                     } else if (err.code == 'ECONNREFUSED') {
                         //isCmdServerBusy = false;
                         reconnectAttempts = 0;
-                        $('#server-error').text('Server error : ' + err.code);
-                        $('#modalview-server-error').kendoMobileModalView('open');
-                    } else {
                         $('#server-error').text('Server error : ' + err.code);
                         $('#modalview-server-error').kendoMobileModalView('open');
                     }
@@ -1458,7 +1456,11 @@
             }
 
             function getOwnPosition() {
-                var reqMsg = new cmdMessage('request own position', null);
+                //map.locate({setView: true});
+                var ownLatLng = map.getCenter();
+                console.log(ownLatLng);
+                var ownLatLngStr = '{"lat":'+ownLatLng.lat+',"lng":'+ownLatLng.lng+'}';
+                var reqMsg = new cmdMessage('request own position', ownLatLngStr);
                 reqMsg.formatControlMessage();
                 reqStack.push(reqMsg);
                 //requestMsg(reqMsg);
@@ -1638,14 +1640,22 @@
                 //$('#map_holder').append('<div id="map3d"></div>');
                 //$('#map3d').css('width',win.width-10);
                 //$('#map3d').css('height',win.height-174);
-                map = L.map('map_holder').setView([13.75, 100.466667], 9);
-                L.tileLayer('https://{s}.tiles.mapbox.com/v4/dtitdl.j679bl09/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZHRpdGRsIiwiYSI6ImZTajJSdHcifQ.Z3yru99Z5_j1QhsQz4s4Tw', {
+                //map = L.map('map_holder').setView([13.75, 100.466667], 9);
+                //map.locate({setView:true});
+                //var mapLayer = L.tileLayer('https://{s}.tiles.mapbox.com/v4/dtitdl.j679bl09/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZHRpdGRsIiwiYSI6ImZTajJSdHcifQ.Z3yru99Z5_j1QhsQz4s4Tw', {
+                //    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                //    maxZoom: 18
+                //});//.addTo(map);
+                var mapLayer = L.tileLayer('http://192.168.69.72/osm_tiles/{z}/{x}/{y}.png', {
                     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
                     maxZoom: 18
-                }).addTo(map);
+                });
+                var mapoptions = {center : new L.LatLng(13.75, 100.466667), zoom : 9 };
+                map = L.map('map_holder',mapoptions).addLayer(mapLayer);
+                
                 //selfMarker = L.marker(map.getCenter()).addTo(map);
-                membersLayer = L.layerGroup(memberMarkers);
-                membersLayer.addTo(map);
+                //membersLayer = L.layerGroup(memberMarkers);
+                //membersLayer.addTo(map);
                 setTimeout(getOwnPosition, 2000, null);
                 setTimeout(getMembers, 2500, null);
                 setTimeout(getTacMessages, 3000, null);

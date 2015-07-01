@@ -1,6 +1,6 @@
 {
   "name": "tdltouchui",
-  "main": "views/index.html",
+  "main": "views/index_demo.html",
   "node-main": "js/index.js",
   "version": "0.0.1",
   "single-instance": true,
@@ -11,7 +11,7 @@
     "min_width": 960,
     "min_height": 720,
     "toolbar": true,
-     "kiosk" : true,
+     "kiosk" : false,
       "frame" : true
   },
   "webkit" : {

@@ -1,5 +1,5 @@
 body {
-    font-family: Helvetica-CondensedLight,Aliquam, Arial, sans-serif !important;
+    font-family: Helvetica, Arial, sans-serif !important;
     font-size: 14px;
     color:#fff;
     background-image: url("../images/patterns/greywashwall/grey_wash_wall/grey_wash_wall.png") !important;
@@ -22,18 +22,18 @@ h1 {
     height: 110px;
     width: 100%;
     /*background: #232a32;*/
-    font-family: "Helvetica83-ExtendedHeavy";
-    font-size: 32px;
-    font-weight: 400;
+    /*font-family: "Helvetica83-ExtendedHeavy";*/
+    font-size: 48px;
+    font-weight: 800;
     color: #fff;
 }
 
 .modal-header {
-    font-family: Helvetica-CondensedBlack;
+    font-family: "Arial Narrow";
     color: #459cd3 !important;
 }
 .modal-content {
-    font-family: Helvetica-CondensedLight;
+    font-family: Helvetica;
 
 }
 
@@ -84,7 +84,7 @@ h1 {
 
 }
 .modal-button {
-    font-family: Helvetica-CondensedLight;
+    font-family: "Arial Narrow";
 }
 .nav-button:active, .modal-button:active  {
     color: #ffffff !important;
