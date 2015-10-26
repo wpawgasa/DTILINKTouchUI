@@ -1647,11 +1647,11 @@
                 //    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
                 //    maxZoom: 18
                 //});//.addTo(map);
-                var mapLayer = L.tileLayer('http://192.168.69.72/osm_tiles/{z}/{x}/{y}.png', {
+                var mapLayer = L.tileLayer('http://192.168.69.60/osm_tiles/{z}/{x}/{y}.png', {
                     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
                     maxZoom: 18
                 });
-                var mapoptions = {center : new L.LatLng(13.75, 100.466667), zoom : 9 };
+                var mapoptions = {center : new L.LatLng(13.910331, 100.550050), zoom : 9 };
                 map = L.map('map_holder',mapoptions).addLayer(mapLayer);
                 
                 //selfMarker = L.marker(map.getCenter()).addTo(map);
